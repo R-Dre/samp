@@ -24,7 +24,7 @@ main_players();
 
 public OnPlayerConnect(playerid)
 {
-	printf("Player has been conecter");
+	printf("Player has been conected");
 #if    defined    OnPlayerConnect_players
     OnPlayerConnect_players(playerid);
 #endif
@@ -39,6 +39,27 @@ public OnPlayerConnect(playerid)
 #define    OnPlayerConnect    OnPlayerConnect_players
 #if    defined    OnPlayerConnect_players
 forward OnPlayerConnect_players(playerid);
+#endif
+
+//------------------------------------
+
+public OnPlayerDisconnect(playerid, reason)
+{
+	printf("Player has been disconnected");
+#if    defined    OnPlayerDisconnect_players
+    OnPlayerDisconnect_players(playerid, reason);
+#endif
+	return 1;
+}
+
+#if    defined    _ALS_OnPlayerDisconnect
+    #undef    OnPlayerDisconnect
+#else
+    #define    _ALS_OnPlayerDisconnect
+#endif
+#define    OnPlayerDisconnect    OnPlayerDisconnect_players
+#if    defined    OnPlayerDisconnect_players
+forward OnPlayerDisconnect_players(playerid, reason);
 #endif
 
 //------------------------------------
@@ -142,7 +163,34 @@ stock ProxDetectorNew(playerid,Float:Radi=10.0,color,text[])
     {
     	if(IsPlayerInRangeOfPoint(i,Radi,pos[0],pos[1],pos[2]))
      	{
-			if(GetPlayerVirtualWorld(i) == GetPlayerVirtualWorld(playerid) && GetPlayerInterior(playerid) == GetPlayerInterior(i)) SendClientMessage(i,color,text);
+			if(GetPlayerVirtualWorld(i) == GetPlayerVirtualWorld(playerid) && GetPlayerInterior(playerid) == GetPlayerInterior(i)) SendClientMessageEx(i,color,text);
 		}
     }
 }
+
+//------------------------------------
+
+public OnPlayerText(playerid, text[])
+{
+	{
+	new text_players[256];
+	new name_players[MAX_PLAYER_NAME];
+    GetPlayerName(playerid, name_players, sizeof(name_players));
+	format(text_players, sizeof(text_players), "%s: %s", name_players, text);
+	ProxDetectorNew(playerid,20.0, COLOR_WHITE, text_players);
+	}
+#if    defined    OnPlayerText_players
+    OnPlayerText_players(playerid, text);
+#endif
+	return 0;
+}
+
+#if    defined    _ALS_OnPlayerText
+    #undef    OnPlayerText
+#else
+    #define    _ALS_OnPlayerText
+#endif
+#define    OnPlayerText    OnPlayerText_players
+#if    defined    OnPlayerText_players
+forward OnPlayerText_players(playerid, text[]);
+#endif

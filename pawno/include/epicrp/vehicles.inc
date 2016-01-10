@@ -24,6 +24,7 @@ main_vehicles();
 
 public OnGameModeInit()
 {
+    CreateVehicle(520, -1974.3361,142.3163,27.6875,176.8261, 0, 1, 60);
     ManualVehicleEngineAndLights();
     EnableStuntBonusForAll(0);
 #if    defined    OnGameModeInit_vehicles
