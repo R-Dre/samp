@@ -6,8 +6,14 @@
 #include <dc_cmd>
 #include <gvar>
 
+#define S_ACCEPT			1054
+#define S_DENY              1055
+#define S_MISSIONCOMPLETE	1058
+
 #include <epicrp/players.inc>
 #include <epicrp/vehicles.inc>
+
+
 
 main()
 {
