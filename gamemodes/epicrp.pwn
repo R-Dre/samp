@@ -6,6 +6,7 @@
 #include <dc_cmd>
 #include <gvar>
 #include <regex>
+#include <easyDialog>
 
 #define SERVER_NAME			"Epic Roleplay"
 #define SERVER_NUMBER		"Development"

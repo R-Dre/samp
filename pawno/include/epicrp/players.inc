@@ -1,5 +1,7 @@
 #define IsValidRpName(%1) \
 regex_match(%1, "([A-Z]{1,1})[a-z]{2,9}+_([A-Z]{1,1})[a-z]{2,9}")
+#define IsValidEmail(%1) \
+	regex_match(%1, "[a-zA-Z0-9_\\.]+@([a-zA-Z0-9\\-]+\\.)+[a-zA-Z]{2,4}")
 
 //------------------------------------
 
