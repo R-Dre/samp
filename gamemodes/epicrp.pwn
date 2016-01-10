@@ -4,6 +4,7 @@
 #include <streamer>
 #include <sscanf2>
 #include <dc_cmd>
+#include <gvar>
 
 #include <epicrp/players.inc>
 #include <epicrp/vehicles.inc>
