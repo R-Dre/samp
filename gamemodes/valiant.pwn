@@ -2129,7 +2129,7 @@ stock IsRPNick(plname[])
 {
 	for(new i=0;i<strlen(plname);i++){
 	    if( !((plname[i]>='a'&&plname[i]<='z') || (plname[i]>='A'&&plname[i]<='Z') || plname[i]=='_') ){
-	        return 0; // ???????????? ??????? ? ????
+	        return 0;
 	    }
 	}
 	new d = strfind(plname, "_");

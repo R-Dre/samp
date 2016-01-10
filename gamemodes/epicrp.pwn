@@ -5,6 +5,7 @@
 #include <sscanf2>
 #include <dc_cmd>
 #include <gvar>
+#include <regex>
 
 #define SERVER_NAME			"Epic Roleplay"
 #define SERVER_NUMBER		"Development"
@@ -39,8 +40,18 @@
 #include <epicrp/players.inc>
 #include <epicrp/vehicles.inc>
 #include <epicrp/interiors.inc>
+#include <epicrp/inventory.inc>
+#include <epicrp/gps.inc>
 
-
+AntiDeAMX()
+{
+    new a[][] =
+    {
+        "Unarmed (Fist)",
+        "Brass K"
+    };
+    #pragma unused a
+}
 
 main()
 {
@@ -51,6 +62,7 @@ main()
 
 public OnGameModeInit()
 {
+    AntiDeAMX();
 	SendRconCommand("hostname "SERVER_NAME" | Server: "SERVER_NUMBER);
 	SendRconCommand("mapname "SERVER_COUNTRY);
 	SetGameModeText(GAMEMODE_NAME" v"GAMEMODE_VERSION);
