@@ -7,12 +7,19 @@
 #include <gvar>
 #include <regex>
 #include <easyDialog>
+#include <md5>
 
 #define SERVER_NAME			"Epic Roleplay"
 #define SERVER_NUMBER		"Development"
 #define SERVER_COUNTRY		"San Andreas"
 #define GAMEMODE_NAME		"ERP"
 #define GAMEMODE_VERSION	"0.0.8"
+
+new MySQL;
+#define SQL_HOST			"localhost"
+#define SQL_DB				"epicrp"
+#define SQL_USER			"root"
+#define SQL_PASS			""
 
 #define S_ACCEPT			1054
 #define S_DENY              1055
@@ -67,6 +74,15 @@ public OnGameModeInit()
 	SendRconCommand("hostname "SERVER_NAME" | Server: "SERVER_NUMBER);
 	SendRconCommand("mapname "SERVER_COUNTRY);
 	SetGameModeText(GAMEMODE_NAME" v"GAMEMODE_VERSION);
+	
+	mysql_log(LOG_ERROR | LOG_WARNING, LOG_TYPE_HTML);
+	MySQL = mysql_connect(SQL_HOST, SQL_USER,SQL_DB, SQL_PASS);
+    mysql_query(MySQL, "SET CHARSET cp1251");
+	mysql_query(MySQL, "SET COLLATION_CONNECTION=cp1251");
+	mysql_query(MySQL, "SET CHARACTER_SET_CLIENT=cp1251");
+	mysql_query(MySQL, "SET CHARACTER_SET_RESULTS=cp1251");
+	mysql_query(MySQL, "SET NAMES cp1251;");
+    mysql_query(MySQL, "SET SESSION character_set_server=cp1251;");
 	return 1;
 }
 

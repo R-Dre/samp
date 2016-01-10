@@ -5,6 +5,29 @@ regex_match(%1, "([A-Z]{1,1})[a-z]{2,9}+_([A-Z]{1,1})[a-z]{2,9}")
 
 //------------------------------------
 
+enum pInfo
+{
+	pID,
+	pName[MAX_PLAYER_NAME],
+	pPass[32],
+	pEMail[64],
+	pBanned,
+	pMuted,
+	pKicks,
+	pBans,
+	pMutes,
+	pWarns,
+	pSex,
+	pExp,
+	pLvl,
+	//Не сохраняемые
+	pLogged,
+	pKick,
+	pWrongPassEnter
+};
+
+new PlayerInfo[MAX_PLAYERS][pInfo];
+
 #define MAX_PERMISSIONS 27
 enum perInfo
 {
@@ -76,6 +99,14 @@ public OnPlayerConnect(playerid)
 		{
 		    SendClientMessageEx(playerid,COLOR_WHITE,"Имя должно иметь формать Firstname_Secondname");
 		}
+		if(select)
+		{
+		    Dialog_Show(playerid, Log, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Авторизация: Введите пароль", "{"#cOLOR_GRAY"}Введите пароль от вашего игрового аккаунта:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+		}
+		else
+		{
+		    Dialog_Show(playerid, RegPassEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод пароля", "{"#cOLOR_GRAY"}Придумайте сложный пароль для своего аккаунта.\nНикому {"#cOLOR_AQUA"}не говорите{"#cOLOR_GRAY"}его!", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+		}
 	}
     DC_CMD(playerid, "/cc");
 #if    defined    OnPlayerConnect_players
@@ -93,6 +124,132 @@ public OnPlayerConnect(playerid)
 #if    defined    OnPlayerConnect_players
 forward OnPlayerConnect_players(playerid);
 #endif
+
+//------------------------------------
+
+Dialog:Log(playerid, response, listitem, inputtext[])
+{
+    if (response)
+    {
+        if(strlen(inputtext))
+        {
+            if(select)
+            {
+                PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
+                SpawnPlayer(playerid);
+            }
+            else
+            {
+                PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
+                Dialog_Show(playerid, Log, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Авторизация: Введите {"#cOLOR_RED"}верный {"#cOLOR_ORANGE"}пароль!", "{"#cOLOR_GRAY"}Введите пароль от вашего игрового аккаунта:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+            }
+			
+        }
+        else
+        {
+            PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
+            Dialog_Show(playerid, Log, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Авторизация: Введите пароль", "{"#cOLOR_GRAY"}Введите пароль от вашего игрового аккаунта:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+        }
+        
+    }
+    else
+    {
+    
+    }
+    return 1;
+}
+
+Dialog:RegPassEnter(playerid, response, listitem, inputtext[])
+{
+    if (response)
+    {
+        if(strlen(inputtext))
+        {
+            PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
+            Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод EMail", "{"#cOLOR_GRAY"}Введите свой точный адрес электронной почты.\nНапример: {"#cOLOR_AQUA"}ch3rkasov@gmail.com{"#cOLOR_GRAY"}\nБез него не получится восстановить доступ к аккаунту в случае утери пароля:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+        }
+        else
+        {
+            PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
+            Dialog_Show(playerid, RegPassEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод пароля", "{"#cOLOR_GRAY"}Придумайте сложный пароль для своего аккаунта.\nНикому {"#cOLOR_AQUA"}не говорите{"#cOLOR_GRAY"}его!", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+		}
+	}
+	else
+    {
+        PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
+        Kick(playerid);
+    }
+    return 1;
+}
+
+Dialog:RegEMailEnter(playerid, response, listitem, inputtext[])
+{
+    if (response)
+    {
+        if(strlen(inputtext))
+        {
+	        if(IsValidEmail(inputtext))
+	        {
+                PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
+	            Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Подтверждение EMail", "{"#cOLOR_GRAY"}На ваш почтовый адрес был отправлен код подтверждения регистрации:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+	        }
+	        else
+	        {
+	            PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
+	            Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод EMail", "{"#cOLOR_GRAY"}Введите свой точный адрес электронной почты.\nНапример: {"#cOLOR_AQUA"}ch3rkasov@gmail.com{"#cOLOR_GRAY"}\nБез него не получится восстановить доступ к аккаунту в случае утери пароля:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+	        }
+        }
+        else
+        {
+            PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
+            Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод EMail", "{"#cOLOR_GRAY"}Введите свой точный адрес электронной почты.\nНапример: {"#cOLOR_AQUA"}ch3rkasov@gmail.com{"#cOLOR_GRAY"}\nБез него не получится восстановить доступ к аккаунту в случае утери пароля:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+        }
+    }
+    else
+    {
+        PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
+        Kick(playerid);
+    }
+    return 1;
+}
+
+Dialog:RegEMailVerification(playerid, response, listitem, inputtext[])
+{
+    if (response)
+    {
+		if(strlen(inputtext))
+		{
+			PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
+		    Dialog_Show(playerid, RegSexSelect, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Выбор пола персонажа", "{"#cOLOR_GRAY"}Выберите пол вашего персонажа", "{"#cOLOR_GREEN"}Мужской", "{"#cOLOR_RED"}Женский");
+		}
+		else
+		{
+		    PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
+		    Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Подтверждение EMail", "{"#cOLOR_GRAY"}На ваш почтовый адрес был отправлен код подтверждения регистрации:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+		}
+    }
+    else
+    {
+        PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
+        Kick(playerid);
+    }
+    return 1;
+}
+
+Dialog:RegSexSelect(playerid, response, listitem, inputtext[])
+{
+    if (response)
+    {
+        PlayerInfo[playerid][pSex] = 0;
+    }
+    else
+    {
+        PlayerInfo[playerid][pSex] = 1;
+    }
+    PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
+    SpawnPlayer(playerid);
+    return 1;
+}
 
 //------------------------------------
 
