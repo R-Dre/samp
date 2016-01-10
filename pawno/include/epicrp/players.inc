@@ -21,7 +21,7 @@ enum pInfo
 	pExp,
 	pLvl,
 	//Не сохраняемые
-	pLogged,
+	bool: pLogged,
 	pKick,
 	pWrongPassEnter
 };
@@ -90,23 +90,29 @@ main_players();
 
 //------------------------------------
 
+
 public OnPlayerConnect(playerid)
 {
 	{
-		new name_players[MAX_PLAYER_NAME];
-	    GetPlayerName(playerid, name_players, sizeof(name_players));
-		if(!IsValidRpName(name_players))
+	    GetPlayerName(playerid, PlayerInfo[playerid][pName], MAX_PLAYER_NAME);
+		if(IsValidRpName(PlayerInfo[playerid][pName]))
 		{
-		    SendClientMessageEx(playerid,COLOR_WHITE,"Имя должно иметь формать Firstname_Secondname");
-		}
-		if(select)
-		{
-		    Dialog_Show(playerid, Log, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Авторизация: Введите пароль", "{"#cOLOR_GRAY"}Введите пароль от вашего игрового аккаунта:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+		    new query_string[52+MAX_PLAYER_NAME];
+			format(query_string, sizeof(query_string), "SELECT * FROM `players` WHERE `name` = '%s'", PlayerInfo[playerid][pName]);
+			new Cache:result = mysql_query(MySQL, query_string);
+		    if(cache_num_rows() != 0)
+			{
+			    Dialog_Show(playerid, Log, DIALOG_STYLE_PASSWORD, "{"#cOLOR_ORANGE"}Авторизация: Введите пароль", "{"#cOLOR_GRAY"}Введите пароль от вашего игрового аккаунта:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+			}
+			else
+			{
+			    Dialog_Show(playerid, RegPassEnter, DIALOG_STYLE_INPUT, "{"#cOLOR_ORANGE"}Регистрация: Ввод пароля", "{"#cOLOR_GRAY"}Придумайте сложный пароль для своего аккаунта.\nНикому {"#cOLOR_AQUA"}не говорите {"#cOLOR_GRAY"}его!", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+			}
 		}
 		else
 		{
-		    Dialog_Show(playerid, RegPassEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод пароля", "{"#cOLOR_GRAY"}Придумайте сложный пароль для своего аккаунта.\nНикому {"#cOLOR_AQUA"}не говорите{"#cOLOR_GRAY"}его!", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
 		}
+		
 	}
     DC_CMD(playerid, "/cc");
 #if    defined    OnPlayerConnect_players
@@ -125,32 +131,66 @@ public OnPlayerConnect(playerid)
 forward OnPlayerConnect_players(playerid);
 #endif
 
+
+//------------------------------------
+
+CMD:stats(playerid,params[])
+{
+	new showid;
+    if(sscanf(params,"i",showid))
+    {
+  		ShowPlayerStats(playerid, playerid);
+	}
+	else
+	{
+	    ShowPlayerStats(playerid, showid);
+	}
+	return 1;
+}
+
+stock ShowPlayerStats(playerid, showid)
+{
+	if(!PlayerInfo[showid][pLogged]) return SendClientMessageEx(playerid,COLOR_RED,"Ошибка: {"#cOLOR_WHITE"}Этот игрок не авторизован");
+	new strTextPlayerDialog[1024], strHeaderPlayerDialog[128];
+	format(strHeaderPlayerDialog, sizeof(strHeaderPlayerDialog),"{"#cOLOR_ORANGE"}Статистика: {"#cOLOR_AQUA"}%s", PlayerInfo[showid][pName]);
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#cOLOR_GRAY"}Имя: \t\t\t\t\t{"#cOLOR_AQUA"}%s\n", strTextPlayerDialog, PlayerInfo[showid][pName]);
+    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#cOLOR_GRAY"}Пол: \t\t\t\t\t{"#cOLOR_AQUA"}%s\n", strTextPlayerDialog, PlayerInfo[showid][pSex] == 0 ? ("Мужской") : ("Женский"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#cOLOR_GRAY"}Регистрационный номер: \t\t{"#cOLOR_AQUA"}%d\n", strTextPlayerDialog, PlayerInfo[showid][pID]);
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#cOLOR_GRAY"}Почта: \t\t\t\t\t{"#cOLOR_AQUA"}%s\n", strTextPlayerDialog, PlayerInfo[showid][pEMail]);
+ 	Dialog_Show(playerid, MsgBox,DIALOG_STYLE_MSGBOX,strHeaderPlayerDialog,strTextPlayerDialog,"Закрыть","");
+	return 1;
+}
+
 //------------------------------------
 
 Dialog:Log(playerid, response, listitem, inputtext[])
 {
     if (response)
     {
-        if(strlen(inputtext))
+        if(!isnull(inputtext))
         {
-            if(select)
+            new query_string[52+MAX_PLAYER_NAME+32];
+			format(query_string, sizeof(query_string), "SELECT * FROM `players` WHERE `name` = '%s' AND `pass` = '%s'", PlayerInfo[playerid][pName], MD5_Hash(inputtext));
+			new Cache:result = mysql_query(MySQL, query_string);
+            if(cache_num_rows() != 0)
             {
                 PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
+                PlayerInfo[playerid][pLogged] = true;
                 SpawnPlayer(playerid);
             }
             else
             {
                 PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-                Dialog_Show(playerid, Log, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Авторизация: Введите {"#cOLOR_RED"}верный {"#cOLOR_ORANGE"}пароль!", "{"#cOLOR_GRAY"}Введите пароль от вашего игрового аккаунта:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+                Dialog_Show(playerid, Log, DIALOG_STYLE_PASSWORD, "{"#cOLOR_ORANGE"}Авторизация: Введите {"#cOLOR_RED"}верный {"#cOLOR_ORANGE"}пароль!", "{"#cOLOR_GRAY"}Введите пароль от вашего игрового аккаунта:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
             }
-			
+
         }
         else
         {
             PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-            Dialog_Show(playerid, Log, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Авторизация: Введите пароль", "{"#cOLOR_GRAY"}Введите пароль от вашего игрового аккаунта:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+            Dialog_Show(playerid, Log, DIALOG_STYLE_INPUT, "{"#cOLOR_ORANGE"}Авторизация: Введите пароль", "{"#cOLOR_GRAY"}Введите пароль от вашего игрового аккаунта:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
         }
-        
+
     }
     else
     {
@@ -163,15 +203,16 @@ Dialog:RegPassEnter(playerid, response, listitem, inputtext[])
 {
     if (response)
     {
-        if(strlen(inputtext))
+        if(!isnull(inputtext))
         {
+            format(PlayerInfo[playerid][pPass], 32, "%s", MD5_Hash(inputtext));
             PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
-            Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод EMail", "{"#cOLOR_GRAY"}Введите свой точный адрес электронной почты.\nНапример: {"#cOLOR_AQUA"}ch3rkasov@gmail.com{"#cOLOR_GRAY"}\nБез него не получится восстановить доступ к аккаунту в случае утери пароля:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+            Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_INPUT, "{"#cOLOR_ORANGE"}Регистрация: Ввод EMail", "{"#cOLOR_GRAY"}Введите свой точный адрес электронной почты.\nНапример: {"#cOLOR_AQUA"}ch3rkasov@gmail.com{"#cOLOR_GRAY"}\nБез него не получится восстановить доступ к аккаунту в случае утери пароля:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
         }
         else
         {
             PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-            Dialog_Show(playerid, RegPassEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод пароля", "{"#cOLOR_GRAY"}Придумайте сложный пароль для своего аккаунта.\nНикому {"#cOLOR_AQUA"}не говорите{"#cOLOR_GRAY"}его!", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+            Dialog_Show(playerid, RegPassEnter, DIALOG_STYLE_INPUT, "{"#cOLOR_ORANGE"}Регистрация: Ввод пароля", "{"#cOLOR_GRAY"}Придумайте сложный пароль для своего аккаунта.\nНикому {"#cOLOR_AQUA"}не говорите {"#cOLOR_GRAY"}его!", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
 		}
 	}
 	else
@@ -186,23 +227,24 @@ Dialog:RegEMailEnter(playerid, response, listitem, inputtext[])
 {
     if (response)
     {
-        if(strlen(inputtext))
+        if(!isnull(inputtext))
         {
 	        if(IsValidEmail(inputtext))
 	        {
+	            format(PlayerInfo[playerid][pEMail], 64,"%s", inputtext);
                 PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
-	            Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Подтверждение EMail", "{"#cOLOR_GRAY"}На ваш почтовый адрес был отправлен код подтверждения регистрации:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+	            Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_INPUT, "{"#cOLOR_ORANGE"}Регистрация: Подтверждение EMail", "{"#cOLOR_GRAY"}На ваш почтовый адрес был отправлен код подтверждения регистрации:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
 	        }
 	        else
 	        {
 	            PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-	            Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод EMail", "{"#cOLOR_GRAY"}Введите свой точный адрес электронной почты.\nНапример: {"#cOLOR_AQUA"}ch3rkasov@gmail.com{"#cOLOR_GRAY"}\nБез него не получится восстановить доступ к аккаунту в случае утери пароля:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+	            Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_INPUT, "{"#cOLOR_ORANGE"}Регистрация: Ввод EMail", "{"#cOLOR_GRAY"}Введите свой точный адрес электронной почты.\nНапример: {"#cOLOR_AQUA"}ch3rkasov@gmail.com{"#cOLOR_GRAY"}\nБез него не получится восстановить доступ к аккаунту в случае утери пароля:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
 	        }
         }
         else
         {
             PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-            Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Ввод EMail", "{"#cOLOR_GRAY"}Введите свой точный адрес электронной почты.\nНапример: {"#cOLOR_AQUA"}ch3rkasov@gmail.com{"#cOLOR_GRAY"}\nБез него не получится восстановить доступ к аккаунту в случае утери пароля:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+            Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_INPUT, "{"#cOLOR_ORANGE"}Регистрация: Ввод EMail", "{"#cOLOR_GRAY"}Введите свой точный адрес электронной почты.\nНапример: {"#cOLOR_AQUA"}ch3rkasov@gmail.com{"#cOLOR_GRAY"}\nБез него не получится восстановить доступ к аккаунту в случае утери пароля:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
         }
     }
     else
@@ -217,15 +259,15 @@ Dialog:RegEMailVerification(playerid, response, listitem, inputtext[])
 {
     if (response)
     {
-		if(strlen(inputtext))
-		{
+		if(!isnull(inputtext))
+  		{
 			PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
-		    Dialog_Show(playerid, RegSexSelect, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Выбор пола персонажа", "{"#cOLOR_GRAY"}Выберите пол вашего персонажа", "{"#cOLOR_GREEN"}Мужской", "{"#cOLOR_RED"}Женский");
+		    Dialog_Show(playerid, RegSexSelect, DIALOG_STYLE_MSGBOX, "{"#cOLOR_ORANGE"}Регистрация: Выбор пола персонажа", "{"#cOLOR_GRAY"}Выберите пол вашего персонажа", "{"#cOLOR_GREEN"}Мужской", "{"#cOLOR_RED"}Женский");
 		}
 		else
-		{
+  		{
 		    PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-		    Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_LIST, "{"#cOLOR_ORANGE"}Регистрация: Подтверждение EMail", "{"#cOLOR_GRAY"}На ваш почтовый адрес был отправлен код подтверждения регистрации:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
+		    Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_INPUT, "{"#cOLOR_ORANGE"}Регистрация: Подтверждение EMail", "{"#cOLOR_GRAY"}На ваш почтовый адрес был отправлен код подтверждения регистрации:", "{"#cOLOR_GREEN"}Ввод", "{"#cOLOR_RED"}Выход");
 		}
     }
     else
@@ -247,6 +289,7 @@ Dialog:RegSexSelect(playerid, response, listitem, inputtext[])
         PlayerInfo[playerid][pSex] = 1;
     }
     PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
+    PlayerInfo[playerid][pLogged] = true;
     SpawnPlayer(playerid);
     return 1;
 }
@@ -405,9 +448,7 @@ public OnPlayerText(playerid, text[])
 {
 	{
 	new text_players[256];
-	new name_players[MAX_PLAYER_NAME];
-    GetPlayerName(playerid, name_players, sizeof(name_players));
-	format(text_players, sizeof(text_players), "%s: %s", name_players, text);
+	format(text_players, sizeof(text_players), "%s: %s", PlayerInfo[playerid][pName], text);
 	ProxDetectorNew(playerid,20.0, COLOR_WHITE, text_players);
 	}
 #if    defined    OnPlayerText_players
@@ -431,9 +472,8 @@ forward OnPlayerText_players(playerid, text[]);
 CMD:b(playerid,params[])
 {
     if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid,COLOR_YELLOW,"Подсказка: {"#cOLOR_WHITE"}Используйте {"#cOLOR_GRAY"}/b [сообщение]");
-    new name_players[MAX_PLAYER_NAME], text_players[256];
-    GetPlayerName(playerid, name_players, sizeof(name_players));
-	format(text_players, sizeof(text_players), "(( %s: %s ))", name_players,params);
+    new text_players[256];
+	format(text_players, sizeof(text_players), "(( %s: %s ))", PlayerInfo[playerid][pName],params);
 	ProxDetectorNew(playerid,5.0,COLOR_GRAY,text_players);
 	return 1;
 }
@@ -441,9 +481,8 @@ CMD:b(playerid,params[])
 CMD:try(playerid,params[])
 {
     if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid,COLOR_YELLOW,"Подсказка: {"#cOLOR_WHITE"}Используйте {"#cOLOR_GRAY"}/try [сообщение]");
-    new name_players[MAX_PLAYER_NAME], text_players[256];
-    GetPlayerName(playerid, name_players, sizeof(name_players));
-	format(text_players,sizeof(text_players),"%s %s {"#cOLOR_GRAY"}(( %s ))",name_players,params[0],random(2) == 1 ? ("Удачно") : ("Неудачно"));
+    new text_players[256];
+	format(text_players,sizeof(text_players),"%s %s {"#cOLOR_GRAY"}(( %s ))",PlayerInfo[playerid][pName],params[0],random(2) == 1 ? ("Удачно") : ("Неудачно"));
 	ProxDetectorNew(playerid,5.0,COLOR_PINK,text_players);
 	return 1;
 }
@@ -451,9 +490,8 @@ CMD:try(playerid,params[])
 CMD:do(playerid,params[])
 {
     if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid,COLOR_YELLOW,"Подсказка: {"#cOLOR_WHITE"}Используйте {"#cOLOR_GRAY"}/do [сообщение]");
-    new name_players[MAX_PLAYER_NAME], text_players[256];
-    GetPlayerName(playerid, name_players, sizeof(name_players));
-	format(text_players, sizeof(text_players), "%s {"#cOLOR_GRAY"}(( %s ))",params,name_players);
+    new text_players[256];
+	format(text_players, sizeof(text_players), "%s {"#cOLOR_GRAY"}(( %s ))",params,PlayerInfo[playerid][pName]);
 	ProxDetectorNew(playerid,5.0, COLOR_PINK,text_players);
 	return 1;
 }
@@ -461,9 +499,8 @@ CMD:do(playerid,params[])
 CMD:low(playerid,params[])
 {
     if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid,COLOR_YELLOW,"Подсказка: {"#cOLOR_WHITE"}Используйте {"#cOLOR_GRAY"}/low [сообщение]");
-    new name_players[MAX_PLAYER_NAME], text_players[256];
-    GetPlayerName(playerid, name_players, sizeof(name_players));
-	format(text_players, sizeof(text_players), "%s тихо произнес: %s", name_players,params);
+    new text_players[256];
+	format(text_players, sizeof(text_players), "%s тихо произнес: %s", PlayerInfo[playerid][pName],params);
 	ProxDetectorNew(playerid,2.0,COLOR_WHITE,text_players);
 	return 1;
 }
@@ -471,9 +508,8 @@ CMD:low(playerid,params[])
 CMD:s(playerid,params[])
 {
     if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid,COLOR_YELLOW,"Подсказка: {"#cOLOR_WHITE"}Используйте {"#cOLOR_GRAY"}/s [сообщение]");
-    new name_players[MAX_PLAYER_NAME], text_players[256];
-    GetPlayerName(playerid, name_players, sizeof(name_players));
-	format(text_players, sizeof(text_players), "%s крикнул: %s", name_players,params);
+    new text_players[256];
+	format(text_players, sizeof(text_players), "%s крикнул: %s", PlayerInfo[playerid][pName],params);
 	ProxDetectorNew(playerid,50.0,COLOR_WHITE,text_players);
 	ApplyAnimationEx(playerid,"ON_LOOKERS","shout_01",4.1,0,0,0,0,0,0);
 	return 1;
@@ -482,9 +518,8 @@ CMD:s(playerid,params[])
 CMD:me(playerid,params[])
 {
     if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid,COLOR_YELLOW,"Подсказка: {"#cOLOR_WHITE"}Используйте {"#cOLOR_GRAY"}/me [сообщение]");
-    new name_players[MAX_PLAYER_NAME], text_players[256];
-    GetPlayerName(playerid, name_players, sizeof(name_players));
-	format(text_players, sizeof(text_players), "%s %s", name_players,params);
+    new text_players[256];
+	format(text_players, sizeof(text_players), "%s %s", PlayerInfo[playerid][pName],params);
 	ProxDetectorNew(playerid,5.0,COLOR_PINK,text_players);
 	return 1;
 }

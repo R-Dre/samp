@@ -9,6 +9,9 @@
 #include <easyDialog>
 #include <md5>
 
+#define isnull(%1) \
+((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
+
 #define SERVER_NAME			"Epic Roleplay"
 #define SERVER_NUMBER		"Development"
 #define SERVER_COUNTRY		"San Andreas"
