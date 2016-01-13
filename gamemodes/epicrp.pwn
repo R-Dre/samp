@@ -1,3 +1,7 @@
+#define MAILER_URL "epic-rp.esy.es/mailer.php" // This has to be defined BEFORE you include mailer.
+#define isnull(%1) \
+((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
+
 #include <a_samp>
 #include <a_mysql>
 #include <foreach>
@@ -8,9 +12,7 @@
 #include <regex>
 #include <easyDialog>
 #include <md5>
-
-#define isnull(%1) \
-((!(%1[0])) || (((%1[0]) == '\1') && (!(%1[1]))))
+#include <a_mailer>
 
 #define SERVER_NAME			"Epic Roleplay"
 #define SERVER_NUMBER		"Development"
