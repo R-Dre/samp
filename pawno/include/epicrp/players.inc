@@ -9,7 +9,7 @@ enum pInfo
 {
 	pID,
 	pName[MAX_PLAYER_NAME],
-	pPass[32],
+	pPass[33],
 	pEMail[64],
 	pBanned,
 	pMuted,
@@ -141,13 +141,48 @@ stock RemovePlayerData(playerid)
 	return 1;
 }
 
-stock LoadPlayerData(playerid)
+forward LoadPlayerData(playerid);
+public LoadPlayerData(playerid)
 {
+	new temp[64];
+    PlayerInfo[playerid][pID] = cache_get_field_content_int(0, "id", MySQL);
+    PlayerInfo[playerid][pSex] = cache_get_field_content_int(0, "sex", MySQL);
+    PlayerInfo[playerid][pLvl] = cache_get_field_content_int(0, "lvl", MySQL);
+    PlayerInfo[playerid][pExp] = cache_get_field_content_int(0, "exp", MySQL);
+    cache_get_field_content(0, "pass", temp, MySQL); format(PlayerInfo[playerid][pPass], 33, "%s", temp);
+    cache_get_field_content(0, "email", temp, MySQL); format(PlayerInfo[playerid][pEMail], 64, "%s", temp);
 	return 1;
 }
 
 stock RegisterPlayer(playerid)
 {
+	new query[300];
+	format(query, sizeof(query), "INSERT INTO `players` (`name`, `pass`, `email`, `sex`) VALUES ('%s', '%s', '%s', '%i')", PlayerInfo[playerid][pName], PlayerInfo[playerid][pPass], PlayerInfo[playerid][pEMail], PlayerInfo[playerid][pSex]);
+    mysql_query(MySQL, query);
+    GetPlayerIDByName(PlayerInfo[playerid][pName]);
+	return 1;
+}
+
+stock GetPlayerIDByName(name[])
+{
+    new query_string[52+MAX_PLAYER_NAME];
+	format(query_string, sizeof(query_string), "SELECT `id` FROM `players` WHERE `name` = '%s'", name);
+	mysql_query(MySQL, query_string);
+	return cache_get_field_content_int(0, "id", MySQL);
+}
+
+stock SavePlayerData(playerid)
+{
+	new query_string[1024];
+	format(query_string, sizeof(query_string), "UPDATE `players` SET");
+	format(query_string, sizeof(query_string), "%s `name` = '%s',", query_string, PlayerInfo[playerid][pName]);
+	format(query_string, sizeof(query_string), "%s `pass` = '%s',", query_string, PlayerInfo[playerid][pPass]);
+	format(query_string, sizeof(query_string), "%s `email` = '%s',", query_string, PlayerInfo[playerid][pEMail]);
+	format(query_string, sizeof(query_string), "%s `sex` = '%i',", query_string, PlayerInfo[playerid][pSex]);
+	format(query_string, sizeof(query_string), "%s `lvl` = '%i',", query_string, PlayerInfo[playerid][pLvl]);
+	format(query_string, sizeof(query_string), "%s `exp` = '%i'", query_string, PlayerInfo[playerid][pExp]);
+	format(query_string, sizeof(query_string), "%s WHERE `id` = '%i'", query_string, PlayerInfo[playerid][pID]);
+	mysql_query(MySQL, query_string);
 	return 1;
 }
 
@@ -193,6 +228,7 @@ Dialog:Log(playerid, response, listitem, inputtext[])
 			new Cache:result = mysql_query(MySQL, query_string);
             if(cache_num_rows() != 0)
             {
+                mysql_function_query(MySQL, query_string, true, "LoadPlayerData","i", playerid);
                 LoadPlayerData(playerid);
                 PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
                 PlayerInfo[playerid][pLogged] = true;
@@ -385,7 +421,10 @@ forward OnPlayerSpawn_players(playerid);
 
 public OnPlayerDisconnect(playerid, reason)
 {
-	printf("Player has been disconnected");
+	if(PlayerInfo[playerid][pLogged])
+	{
+	    SavePlayerData(playerid);
+	}
 #if    defined    OnPlayerDisconnect_players
     OnPlayerDisconnect_players(playerid, reason);
 #endif
