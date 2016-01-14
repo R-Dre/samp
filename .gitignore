@@ -1,7 +1,5 @@
 *.exe
 *.amx
-*.dll
-*.so
 *.sql
 pawno/new.pwn
 pawno/pawn.ico
