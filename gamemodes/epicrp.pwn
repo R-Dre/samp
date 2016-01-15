@@ -21,6 +21,14 @@
 #define GAMEMODE_VERSION	"0.0.8"
 
 new MySQL;
+
+//new strChatBubble[144];//Переменные для глобального использования
+new strHeaderPlayerDialog[64];//Заголовок диалоговых окон
+new strIOText[256];//Любой вводимый текст будь это диалоговое окно или чат
+new strTextPlayerDialog[2048];//Для текста всего диалогового окна
+new strSQLQuery[1024];//Для запросов к базе данных
+
+
 #define SQL_HOST			"localhost"
 #define SQL_DB				"epicrp"
 #define SQL_USER			"root"
@@ -37,7 +45,7 @@ new MySQL;
 #define COLOR_PINK          0xFFC0CBFF
 #define COLOR_RED           0xE91218FF
 #define COLOR_YELLOW        0xe6e912FF
-#define COLOR_GREEN         0x12e97bFF
+#define COLOR_GREEN         0x66CC33FF
 #define COLOR_BLACK         0x000000FF
 
 #define cOLOR_WHITE			FFFFFF
@@ -46,15 +54,35 @@ new MySQL;
 #define cOLOR_GRAY2         565656
 #define cOLOR_BLACK         000000
 #define cOLOR_AQUA          68C4AF
-#define cOLOR_GREEN         12e97b
+#define cOLOR_GREEN         66CC33
 #define cOLOR_RED           E91218
 #define cOLOR_PINK          FFC0CB
 
+#define COLOR_SUCCESS		66CC66
+#define COLOR_ERROR			FF3300
+#define COLOR_ADVICE		6600CC
+#define COLOR_NOTE			FFFF66
+#define COLOR_QUESTION		3300CC
+
+#define COLOR_DIALOG_HEAD		0099CC
+#define COLOR_DIALOG_BODY		FFFFFF
+#define COLOR_DIALOG_NOTACTIVE	666666
+
+#define CLR_SUCCESS				0x66CC66FF
+#define CLR_ERROR				0xFF3300FF
+#define CLR_ADVICE				0x6600CCFF
+#define CLR_NOTE				0xFFFF66FF
+#define CLR_QUESTION			0x3300CCFF
+
+#define CLR_DIALOG_HEAD			0x0099CCFF
+#define CLR_DIALOG_BODY			0xFFFFFFFF
+#define CLR_DIALOG_NOTACTIVE	0x666666FF
+
+#include <epicrp/gps.inc>
 #include <epicrp/players.inc>
 #include <epicrp/vehicles.inc>
 #include <epicrp/interiors.inc>
 #include <epicrp/inventory.inc>
-#include <epicrp/gps.inc>
 
 AntiDeAMX()
 {

@@ -9,14 +9,14 @@ enum GPSInfo
     Float:zone_maxz
 }
 
-new Float:Cities[][GPSInfo] =
+new Cities[][GPSInfo] =
 {
 	{"Los Santos",                    44.60,     -2892.90,	-242.90, 2997.00,  -768.00,  900.00},
 	{"San Fierro",                    -2997.40,  -1115.50,  -242.90, -1213.90, 1659.60,  900.00},
 	{"Las Venturas",                  869.40,    596.30,    -242.90, 2997.00,  2993.80,  900.00}
 };
 
-new Float:Zones[][GPSInfo] = {
+new Zones[][GPSInfo] = {
 	{ "'The Big Ear'",                -410.00,  1403.30,    -3.00,  -137.90,  1681.20,   200.00},
 	{ "Aldea Malvada",               -1372.10,  2498.50,     0.00, -1277.50,  2615.30,   200.00},
 	{ "Angel Pine",                  -2324.90, -2584.20,    -6.10, -1964.20, -2212.10,   200.00},
@@ -389,7 +389,7 @@ stock GetZone(Float:x,Float:y,Float:z)
 	for(new i=0;i<sizeof(Zones);i++)
 	{
 		if(x > Zones[i][zone_minx] && y > Zones[i][zone_miny] && z > Zones[i][zone_minz] && x < Zones[i][zone_maxx] && y < Zones[i][zone_maxy] && z < Zones[i][zone_maxz])
-		return i;
+  		return Zones[i][zone_name];
 	}
 	return false;
 }
@@ -399,7 +399,7 @@ stock GetCity(Float:x,Float:y,Float:z)
 	for(new i=0;i<sizeof(Cities);i++)
 	{
 		if(x > Cities[i][zone_minx] && y > Cities[i][zone_miny] && z > Cities[i][zone_minz] && x < Cities[i][zone_maxx] && y < Cities[i][zone_maxy] && z < Cities[i][zone_maxz])
-		return i;
+  return Cities[i][zone_name];
 	}
 	return false;
 }

@@ -322,7 +322,7 @@ forward OnPlayerUpdate_vehicles(playerid);
 CMD:trail(playerid, params[])
 {
 	new veh1,veh2;
-    if(sscanf(params,"ii",veh1,veh2)) return SendClientMessageEx(playerid,COLOR_YELLOW,"Подсказка: {"#cOLOR_WHITE"}Используйте {"#cOLOR_GRAY"}/trail [id т/с №1] [id т/с №2]");
+    if(sscanf(params,"ii",veh1,veh2)) return SendClientMessageEx(playerid, CLR_NOTE,"«i»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}/trail [id т/с №1] [id т/с №2]");
     if(IsTrailerAttachedToVehicle(veh1) || IsTrailerAttachedToVehicle(veh2))
     {
         DetachTrailerFromVehicle(veh1);
@@ -343,12 +343,12 @@ CMD:vlock(playerid)
 	    if(doors == 0)
 	    {
 	        doors = 1;
-	        SendClientMessageEx(playerid,COLOR_GREEN,"Сообщение: {"#cOLOR_WHITE"}Двери заперты. Чтобы открыть их снова введите {"#cOLOR_GRAY"}/vlock");
+	        SendClientMessageEx(playerid, CLR_SUCCESS,"«v»: {"#cOLOR_WHITE"}Двери закрыты. Чтобы открыть их снова введите {"#COLOR_NOTE"}/vlock");
 	    }
 	    else
 	    {
 	        doors = 0;
-	        SendClientMessageEx(playerid,COLOR_GREEN,"Сообщение: {"#cOLOR_WHITE"}Двери открыть. Чтобы закрыть их снова введите {"#cOLOR_GRAY"}/vlock");
+	        SendClientMessageEx(playerid, CLR_SUCCESS,"«v»: {"#cOLOR_WHITE"}Двери открыты. Чтобы закрыть их снова введите {"#COLOR_NOTE"}/vlock");
 	    }
 	    SetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
 	    break;
@@ -368,12 +368,12 @@ CMD:valarm(playerid)
 	    if(alarm == 0)
 	    {
 	        alarm = 1;
-	        SendClientMessageEx(playerid,COLOR_GREEN,"Сообщение: {"#cOLOR_WHITE"}Сигнализация включена. Чтобы выключить её снова введите {"#cOLOR_GRAY"}/valarm");
+	        SendClientMessageEx(playerid, CLR_SUCCESS,"«v»: {"#cOLOR_WHITE"}Сигнализация включена. Чтобы выключить её снова введите {"#COLOR_NOTE"}/valarm");
 	    }
 	    else
 	    {
 	        alarm = 0;
-	        SendClientMessageEx(playerid,COLOR_GREEN,"Сообщение: {"#cOLOR_WHITE"}Сигнализация выключена. Чтобы включить её снова введите {"#cOLOR_GRAY"}/valarm");
+         	SendClientMessageEx(playerid, CLR_SUCCESS,"«v»: {"#cOLOR_WHITE"}Сигнализация выключена. Чтобы включить её снова введите {"#COLOR_NOTE"}/valarm");
 	    }
 	    SetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
 	    break;
@@ -393,12 +393,12 @@ CMD:vboot(playerid)
 	    if(boot == 0)
 	    {
 	        boot = 1;
-	        SendClientMessageEx(playerid,COLOR_GREEN,"Сообщение: {"#cOLOR_WHITE"}Багажник закрыт. Чтобы открыть его снова введите {"#cOLOR_GRAY"}/vboot");
+	        SendClientMessageEx(playerid, CLR_SUCCESS,"«v»: {"#cOLOR_WHITE"}Багажник закрыт. Чтобы открыть его снова введите {"#COLOR_NOTE"}/vboot");
 	    }
 	    else
 	    {
 	        boot = 0;
-	        SendClientMessageEx(playerid,COLOR_GREEN,"Сообщение: {"#cOLOR_WHITE"}Багажник открыт. Чтобы закрыть его снова введите {"#cOLOR_GRAY"}/vboot");
+         	SendClientMessageEx(playerid, CLR_SUCCESS,"«v»: {"#cOLOR_WHITE"}Багажник открыт. Чтобы закрыть его снова введите {"#COLOR_NOTE"}/vboot");
 	    }
 	    SetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
 	    break;
@@ -418,12 +418,12 @@ CMD:vbonnet(playerid)
 	    if(bonnet == 0)
 	    {
 	        bonnet = 1;
-	        SendClientMessageEx(playerid,COLOR_GREEN,"Сообщение: {"#cOLOR_WHITE"}Копот открыт. Чтобы закрыть его снова введите {"#cOLOR_GRAY"}/vbonnet");
+	        SendClientMessageEx(playerid, CLR_SUCCESS,"«v»: {"#cOLOR_WHITE"}Копот открыть. Чтобы закрыть его снова введите {"#COLOR_NOTE"}/vbonnet");
 	    }
 	    else
 	    {
 	        bonnet = 0;
-	        SendClientMessageEx(playerid,COLOR_GREEN,"Сообщение: {"#cOLOR_WHITE"}Копот закрыт. Чтобы открыть его снова введите {"#cOLOR_GRAY"}/vbonnet");
+	        SendClientMessageEx(playerid, CLR_SUCCESS,"«v»: {"#cOLOR_WHITE"}Копот закрыт. Чтобы открыть его снова введите {"#COLOR_NOTE"}/vbonnet");
 	    }
 	    SetVehicleParamsEx(vehid, engine, lights, alarm, doors, bonnet, boot, objective);
 	    break;
