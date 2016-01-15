@@ -4,6 +4,47 @@ enum mInfo
 	mPrice
 };
 
+enum nInfo
+{
+	gpsName[50],
+	Float: gpsX,
+	Float: gpsY,
+	Float: gpsZ
+};
+
+new NAVInfo[30][nInfo] = {
+	{"ЛОС-САНТОС", 0.0, 0.0, 0.0},
+	{"Мэрия г.Лос-Сантос", 0.0, 0.0, 0.0},
+	{"Полицейский депортамент г.Лос-Сантос", 0.0, 0.0, 0.0},
+	{"Больница г.Лос-Сантос", 0.0, 0.0, 0.0},
+	{"Центр занятости г.Лос-Сантос", 0.0, 0.0, 0.0},
+	{"Продуктовый завод", 0.0, 0.0, 0.0},
+	{"Автосалон эконом класса", 0.0, 0.0, 0.0},
+	{"Авторынок г.Лос-Сантос", 0.0, 0.0, 0.0},
+	{"Агенство недвижимости г.Лос-Сантос", 0.0, 0.0, 0.0},
+	{"Сухопутные войска", 0.0, 0.0, 0.0},
+	{"САН-ФИЕРРО", 0.0, 0.0, 0.0},
+	{"Мэрия г.Сан-Фиерро", 0.0, 0.0, 0.0},
+	{"Полицейский депортамент г.Сан-Фиерро", 0.0, 0.0, 0.0},
+	{"Больница г.Сан-Фиерро", 0.0, 0.0, 0.0},
+	{"Центр занятости г.Сан-Фиерро", 0.0, 0.0, 0.0},
+	{"Оружейный завод", 0.0, 0.0, 0.0},
+	{"Автосалон среднего класса", 0.0, 0.0, 0.0},
+	{"Авторынок г.Сан-Фиерро", 0.0, 0.0, 0.0},
+	{"Агенство недвижимости г.Сан-Фиерро", 0.0, 0.0, 0.0},
+	{"Военно-морской флот", 0.0, 0.0, 0.0},
+	{"ЛАС-ВЕНТУРАС", 0.0, 0.0, 0.0},
+	{"Мэрия г.Лас-Вентурас", 0.0, 0.0, 0.0},
+	{"Полицейский депортамент г.Лас-Вентурас", 0.0, 0.0, 0.0},
+	{"Больница г.Лас-Вентурас", 0.0, 0.0, 0.0},
+	{"Центр занятости г.Лас-Вентурас", 0.0, 0.0, 0.0},
+	{"Нефтеперерабатывающий завод", 0.0, 0.0, 0.0},
+	{"Автосалон премиум класса", 0.0, 0.0, 0.0},
+	{"Авторынок г.Лас-Вентурас", 0.0, 0.0, 0.0},
+	{"Агенство недвижимости г.Лас-Вентурас", 0.0, 0.0, 0.0},
+	{"Военно-воздушные силы", 0.0, 0.0, 0.0}
+};
+
 new aVehicleNames[212][mInfo] = {	// Vehicle Names - Betamaster
 	{"Landstalker",26500},
 	{"Bravura",3000},
@@ -318,6 +359,31 @@ public OnPlayerUpdate(playerid)
 forward OnPlayerUpdate_vehicles(playerid);
 #endif
 //------------------------------------
+
+CMD:gps(playerid)
+{
+	if(!IsPlayerInAnyVehicle(playerid)) return SendClientMessageEx(playerid, CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Эта команда доступна только в транспорте");
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"");
+	for(new i = 0; i < sizeof(NAVInfo);i++)
+	{
+	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s%i. %s\n", strTextPlayerDialog,i+1, NAVInfo[i][gpsName]);
+	}
+	Dialog_Show(playerid, Gps, DIALOG_STYLE_LIST, "{"#COLOR_DIALOG_HEAD"}Навигация", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Выбор", "{"#COLOR_ERROR"}Выход");
+	return 1;
+}
+
+Dialog:Gps(playerid, response, listitem, inputtext[])
+{
+    if (response)
+    {
+		SetPlayerCheckpoint(playerid, NAVInfo[listitem][gpsX],NAVInfo[listitem][gpsY],NAVInfo[listitem][gpsZ]);
+    }
+    else
+    {
+
+    }
+    return 1;
+}
 
 CMD:trail(playerid, params[])
 {

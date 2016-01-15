@@ -238,7 +238,7 @@ stock ShowPlayerStats(playerid, showid)
 	
 	new Float: x, Float: y, Float: z;
 	GetPlayerPos(showid, x, y, z);
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}Текущее местоположение: \t\t{"#COLOR_NOTE"}%s, %s\n", strTextPlayerDialog, GetZone(x, y, z), GetCity(x, y, z));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}Текущее местоположение: \t\t{"#COLOR_NOTE"}%s, %s\n", strTextPlayerDialog, Zones[GetZone(x, y, z)][zone_name], Cities[GetZone(x, y, z)][zone_name]);
 	
 	
 	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}Блокировок аккаунта: \t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, PlayerInfo[showid][pBans]);
