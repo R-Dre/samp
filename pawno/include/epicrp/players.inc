@@ -497,7 +497,7 @@ forward OnPlayerDisconnect_players(playerid, reason);
 public OnGameModeInit()
 {
     
-    AddPlayerClass( 0, -1976.0231,137.8876,27.6875, 0.0, 0, 0, 0, 0, 0, 0);
+    AddPlayerClass( 0, 1734.7269,-1950.1315,14.1172, 0.0, 0, 0, 0, 0, 0, 0);
 	SetNameTagDrawDistance(5);
 	LimitGlobalChatRadius(20);
 	ShowPlayerMarkers(0);
