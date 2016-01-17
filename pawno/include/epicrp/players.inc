@@ -566,7 +566,7 @@ public PlayersPayDay()
 
 	KillTimer(PlayersPayDayTimer);
 	PlayersPayDayTimer = SetTimer("payDay", 3600000-minute*60*1000, 1);
-	format(strIOText, sizeof(strIOText), " PayDay через: %i минут", (3600000-minute*60*1000)/(60*1000));
+	format(strIOText, sizeof(strIOText), " PayDay всего лишь через: %i минут", (3600000-minute*60*1000)/(60*1000));
 	printf(strIOText);
 	return 1;
 }
