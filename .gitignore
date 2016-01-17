@@ -1,6 +1,5 @@
 *.exe
 *.amx
-*.sql
 pawno/new.pwn
 pawno/pawn.ico
 pawno/settings.ini
