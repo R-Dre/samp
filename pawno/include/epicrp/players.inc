@@ -8,6 +8,19 @@ regex_match(%1, "([A-Z]{1,1})[a-z]{2,9}+_([A-Z]{1,1})[a-z]{2,9}")
 
 //------------------------------------
 
+enum fInfo
+{
+	fName[32],
+	fType,// 1 - int, 2 - float, 3 - string
+	fStringLen
+}
+
+new FieldInfo[2][fInfo] = 
+{
+	{"name", 3, 24},
+	{"lvl", 1, 0}
+};
+
 enum pInfo
 {
 	pID,
