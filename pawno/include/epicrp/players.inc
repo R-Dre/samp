@@ -173,13 +173,12 @@ public LoadPlayerData(playerid)
     PlayerInfo[playerid][pWarns] = cache_get_field_content_int(0, "warns", MySQL);
     PlayerInfo[playerid][pKick] = cache_get_field_content_int(0, "kicks", MySQL);
     PlayerInfo[playerid][pMutes] = cache_get_field_content_int(0, "mutes", MySQL);
-    LoadPlayerDataInToPVar(playerid);
     SetPlayerScore(playerid, PlayerInfo[playerid][pLvl]);
 	return 1;
 }
 
-forward LoadPlayerDataInToPVar(playerid);
-public LoadPlayerDataInToPVar(playerid)
+forward LoadFromPlayerTableInToPVar(playerid);
+public LoadFromPlayerTableInToPVar(playerid)
 {
 	new field_name[32], dest[128], temp[128];
 	for(new i = 0; i < cache_get_field_count();i++)
@@ -201,6 +200,50 @@ public LoadPlayerDataInToPVar(playerid)
 			SetPVarString(playerid, field_name, temp);
 		}
 	}
+	return 1;
+}
+
+forward LoadFromPVarInToPlayerTable(playerid);
+public LoadFromPVarInToPlayerTable(playerid)
+{
+	new field_name[32], temp[128];
+
+	format(strSQLQuery, sizeof(strSQLQuery), "UPDATE `players` SET");
+
+	for(new i = 0; i < GetPVarsUpperIndex(playerid) + 1;i++)
+	{
+		GetPVarNameAtIndex(playerid, i, field_name, sizeof(field_name));
+
+		switch(GetPVarType(playerid, field_name))
+    	{
+	        case PLAYER_VARTYPE_NONE:
+	        {
+	            return continue;
+	        }
+	        case PLAYER_VARTYPE_INT:
+	        {
+	        	format(strSQLQuery, sizeof(strSQLQuery),"%s `%s` = '%i'",strSQLQuery, field_name, GetPVarInt(playerid, field_name));
+	        }
+	        case PLAYER_VARTYPE_FLOAT:
+	        {
+	            format(strSQLQuery, sizeof(strSQLQuery),"%s `%s` = '%f'",strSQLQuery, field_name, GetPVarFloat(playerid, field_name));
+	        }
+	        case PLAYER_VARTYPE_STRING:
+	        {
+	            GetPVarString(playerid, field_name, temp);
+	 			format(strSQLQuery, sizeof(strSQLQuery),"%s `%s` = '%s'",strSQLQuery, field_name, GetPVarInt(playerid, temp));
+	        }
+    	}
+
+    	if(i < GetPVarsUpperIndex(playerid) + 1)
+    	{
+    		format(strSQLQuery, sizeof(strSQLQuery),"%s,",strSQLQuery);
+    	}
+	}
+
+	format(strSQLQuery, sizeof(strSQLQuery),"%s WHERE `id` = '%s'",strSQLQuery, PlayerInfo[playerid][pID]);
+
+	mysql_query(MySQL, strSQLQuery);
 	return 1;
 }
 
