@@ -116,16 +116,11 @@ public OnPlayerConnect(playerid)
 	    
 	    new temp[MAX_PLAYER_NAME];
 	    GetPlayerName(playerid, temp, MAX_PLAYER_NAME);
-	    SetPVarString(playerid, "name", temp, MAX_PLAYER_NAME);
+	    SetPVarString(playerid, "name", temp);
 		if(IsValidRpName(temp))
 		{
-<<<<<<< HEAD
-			format(strSQLQuery, sizeof(strSQLQuery), "SELECT * FROM `players` WHERE `name` = '%s'", PlayerInfo[playerid][pName]);
-			mysql_query(MySQL, strSQLQuery);
-=======
 			format(strSQLQuery, sizeof(strSQLQuery), "SELECT * FROM `players` WHERE `name` = '%s'", temp);
-			new Cache:result = mysql_query(MySQL, strSQLQuery);
->>>>>>> refs/heads/blyat
+			mysql_query(MySQL, strSQLQuery);
 		    if(cache_num_rows() != 0)
 			{
 			    format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Добро пожаловать на сервер\nИгровой аккаунт с этим имененем зарегистрирован\n\nИмя: {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"}\nВведите пароль:", temp);
@@ -161,43 +156,6 @@ public OnPlayerConnect(playerid)
 forward OnPlayerConnect_players(playerid);
 #endif
 //------------------------------------
-
-<<<<<<< HEAD
-stock RemovePlayerData(playerid)
-{
-    PlayerInfo[playerid][pWrongEntering] = 0;
-    PlayerInfo[playerid][pBanned] = 0;
-    PlayerInfo[playerid][pMuted] = 0;
-    PlayerInfo[playerid][pBans] = 0;
-    PlayerInfo[playerid][pWarns] = 0;
-    PlayerInfo[playerid][pKick] = 0;
-    PlayerInfo[playerid][pMutes] = 0;
-    PlayerInfo[playerid][pLvl] = 1;
-    PlayerInfo[playerid][pExp] = 0;
-	return 1;
-}
-
-forward LoadPlayerData(playerid);
-public LoadPlayerData(playerid)
-{
-	new temp[64];
-    PlayerInfo[playerid][pID] = cache_get_field_content_int(0, "id", MySQL);
-    PlayerInfo[playerid][pSex] = cache_get_field_content_int(0, "sex", MySQL);
-    PlayerInfo[playerid][pLvl] = cache_get_field_content_int(0, "lvl", MySQL);
-    PlayerInfo[playerid][pExp] = cache_get_field_content_int(0, "exp", MySQL);
-    cache_get_field_content(0, "pass", temp, MySQL); format(PlayerInfo[playerid][pPass], 33, "%s", temp);
-    cache_get_field_content(0, "email", temp, MySQL); format(PlayerInfo[playerid][pEMail], 64, "%s", temp);
-    PlayerInfo[playerid][pBanned] = cache_get_field_content_int(0, "banned", MySQL);
-    PlayerInfo[playerid][pMuted] = cache_get_field_content_int(0, "muted", MySQL);
-    PlayerInfo[playerid][pBans] = cache_get_field_content_int(0, "bans", MySQL);
-    PlayerInfo[playerid][pWarns] = cache_get_field_content_int(0, "warns", MySQL);
-    PlayerInfo[playerid][pKick] = cache_get_field_content_int(0, "kicks", MySQL);
-    PlayerInfo[playerid][pMutes] = cache_get_field_content_int(0, "mutes", MySQL);
-    SetPlayerScore(playerid, PlayerInfo[playerid][pLvl]);
-	return 1;
-}
-=======
->>>>>>> refs/heads/blyat
 
 forward LoadFromPlayerTableInToPVar(playerid);
 public LoadFromPlayerTableInToPVar(playerid)
@@ -240,7 +198,7 @@ public LoadFromPVarInToPlayerTable(playerid)
     	{
 	        case PLAYER_VARTYPE_NONE:
 	        {
-	            return continue;
+	            continue;
 	        }
 	        case PLAYER_VARTYPE_INT:
 	        {
@@ -252,7 +210,7 @@ public LoadFromPVarInToPlayerTable(playerid)
 	        }
 	        case PLAYER_VARTYPE_STRING:
 	        {
-	            GetPVarString(playerid, field_name, temp);
+	            GetPVarString(playerid, field_name, temp, sizeof(temp));
 	 			format(strSQLQuery, sizeof(strSQLQuery),"%s `%s` = '%s'",strSQLQuery, field_name, GetPVarInt(playerid, temp));
 	        }
     	}
@@ -419,34 +377,6 @@ Dialog:RegEMailEnter(playerid, response, listitem, inputtext[])
         {
 	        if(IsValidEmail(inputtext))
 	        {
-<<<<<<< HEAD
-	        	format(strSQLQuery, sizeof(strSQLQuery), "SELECT * FROM `players` WHERE `email` = '%s'", inputtext);
-				mysql_query(MySQL, strSQLQuery);
-		    	if(cache_num_rows() == 0)
-		    	{
-		    		format(PlayerInfo[playerid][pEMail], 64, inputtext);
-	                PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
-					format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}На почтовый адрес {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"} был отправлен код\n", PlayerInfo[playerid][pEMail]);
-					format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s{"#COLOR_DIALOG_BODY"}Сверните игру с помощью комбинации {"#COLOR_NOTE"}(alt+tab){"#COLOR_DIALOG_BODY"}, скопируйте и вставьте его в это окно\n", strTextPlayerDialog);
-		   			Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_INPUT, "{"#COLOR_DIALOG_HEAD"}Регистрация: Подтверждение EMail", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Ввод", "{"#COLOR_ERROR"}Выход");
-		   			
-					PlayerInfo[playerid][pEMailConfirmCode] = 1000 + random(899);
-					new theme[256], subject[256];
-					format(subject, sizeof(subject), "Подтверждение регистрации");
-					format(theme, sizeof(theme),"Скопируйте код подтверждение и вставьте в диалоговое окно в игре <br>Код: <b>%i</b>", PlayerInfo[playerid][pEMailConfirmCode]);
-					SendMail( PlayerInfo[playerid][pEMail], "noreply@epic-rp.su", "Epic Interactive", subject, theme );
-					PlayerInfo[playerid][pWrongEntering] = 0;
-		    	}
-		    	else
-		    	{
-		    		PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-                    format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Введите адрес Вашей электронной почты\nВ дальнейшем он может понадобиться для восстановление доступа к игровому аккаунту, в случае взлома или если Вы забудите пароль\n\n");
-    				format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s{"#COLOR_DIALOG_BODY"}На введенный адрес будет выслан код, который необходим для подтверждения\nЭто может занять от 1 до 5 минут", strTextPlayerDialog);
-    				format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s\n\n\t{"#COLOR_NOTE"}Примечание:\n\t- не используйте сервисы временных почтовых адресов\n\t- в случае потери доступа к почтовому адресу, игровой аккаунт будет удалён", strTextPlayerDialog);
-	   			 	Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_INPUT, "{"#COLOR_DIALOG_HEAD"}Регистрация: Ввод EMail   {"#COLOR_ERROR"}[EMail уже используется!]", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Ввод", "{"#COLOR_ERROR"}Выход");
-		    	}
-	            
-=======
 	            SetPVarString(playerid, "email", inputtext);
                 PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
 				format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}На почтовый адрес {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"} был отправлен код\n", inputtext);
@@ -459,7 +389,6 @@ Dialog:RegEMailEnter(playerid, response, listitem, inputtext[])
 				format(theme, sizeof(theme),"Скопируйте код подтверждение и вставьте в диалоговое окно в игре <br>Код: <b>%i</b>", GetPVarInt(playerid, "email_confirm_code"));
 				SendMail( inputtext, "noreply@epic-rp.su", "Epic Interactive", subject, theme );
 				DeletePVar(playerid, "wrong_entering");
->>>>>>> refs/heads/blyat
 			}
 	        else
 	        {

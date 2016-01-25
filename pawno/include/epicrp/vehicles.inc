@@ -391,7 +391,7 @@ Dialog:Gps(playerid, response, listitem, inputtext[])
 {
     if (response)
     {
-		SetPlayerCheckpoint(playerid, NAVInfo[listitem][gpsX],NAVInfo[listitem][gpsY],NAVInfo[listitem][gpsZ]);
+		SetPlayerCheckpoint(playerid, NAVInfo[listitem][gpsX],NAVInfo[listitem][gpsY],NAVInfo[listitem][gpsZ], 3.0);
     }
     else
     {
