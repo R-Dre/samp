@@ -300,7 +300,7 @@ Dialog:Log(playerid, response, listitem, inputtext[])
 			mysql_query(MySQL, strSQLQuery);
             if(cache_num_rows() != 0)
             {
-                //mysql_function_query(MySQL, strSQLQuery, true, "LoadPlayerData","i", playerid);
+                mysql_function_query(MySQL, strSQLQuery, true, "LoadFromPlayerTableInToPVar","i", playerid);
                 
                 PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
                 SetPVarInt(playerid, "logged", 1);
@@ -483,6 +483,7 @@ Dialog:RegSexSelect(playerid, response, listitem, inputtext[])
         SetPVarInt(playerid, "sex", 1);
     }
     RegisterPlayer(playerid);
+    LoadFromPlayerTableInToPVar(playerid);
     PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
     SetPVarInt(playerid, "logged", 1);
     SpawnPlayer(playerid);
@@ -515,7 +516,7 @@ public OnPlayerDisconnect(playerid, reason)
 {
 	if(GetPVarInt(playerid, "logged") == 1)
 	{
-	    //SavePlayerData(playerid);
+	    LoadFromPVarInToPlayerTable(playerid);
 	}
 #if    defined    OnPlayerDisconnect_players
     OnPlayerDisconnect_players(playerid, reason);
