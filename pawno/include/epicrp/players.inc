@@ -96,16 +96,17 @@ main_players();
 public OnPlayerConnect(playerid)
 {
 	{
-	    RemovePlayerData(playerid);
 	    
-	    GetPlayerName(playerid, PlayerInfo[playerid][pName], MAX_PLAYER_NAME);
-		if(IsValidRpName(PlayerInfo[playerid][pName]))
+	    new temp[MAX_PLAYER_NAME];
+	    GetPlayerName(playerid, temp, MAX_PLAYER_NAME);
+	    SetPVarString(playerid, "name", temp, MAX_PLAYER_NAME);
+		if(IsValidRpName(temp))
 		{
-			format(strSQLQuery, sizeof(strSQLQuery), "SELECT * FROM `players` WHERE `name` = '%s'", PlayerInfo[playerid][pName]);
+			format(strSQLQuery, sizeof(strSQLQuery), "SELECT * FROM `players` WHERE `name` = '%s'", temp);
 			new Cache:result = mysql_query(MySQL, strSQLQuery);
 		    if(cache_num_rows() != 0)
 			{
-			    format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Добро пожаловать на сервер\nИгровой аккаунт с этим имененем зарегистрирован\n\nИмя: {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"}\nВведите пароль:", PlayerInfo[playerid][pName]);
+			    format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Добро пожаловать на сервер\nИгровой аккаунт с этим имененем зарегистрирован\n\nИмя: {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"}\nВведите пароль:", temp);
 			    Dialog_Show(playerid, Log, DIALOG_STYLE_PASSWORD, "{"#COLOR_DIALOG_HEAD"}Авторизация: Введите пароль", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Ввод", "{"#COLOR_ERROR"}Выход");
 			}
 			else
@@ -138,40 +139,6 @@ forward OnPlayerConnect_players(playerid);
 #endif
 //------------------------------------
 
-stock RemovePlayerData(playerid)
-{
-    PlayerInfo[playerid][pWrongEntering] = 0;
-    PlayerInfo[playerid][pBanned] = 0;
-    PlayerInfo[playerid][pMuted] = 0;
-    PlayerInfo[playerid][pBans] = 0;
-    PlayerInfo[playerid][pWarns] = 0;
-    PlayerInfo[playerid][pKick] = 0;
-    PlayerInfo[playerid][pMutes] = 0;
-    PlayerInfo[playerid][pLvl] = 1;
-    PlayerInfo[playerid][pExp] = 0;
-	return 1;
-}
-
-forward LoadPlayerData(playerid);
-public LoadPlayerData(playerid)
-{
-	new temp[64];
-    PlayerInfo[playerid][pID] = cache_get_field_content_int(0, "id", MySQL);
-    PlayerInfo[playerid][pSex] = cache_get_field_content_int(0, "sex", MySQL);
-    PlayerInfo[playerid][pLvl] = cache_get_field_content_int(0, "lvl", MySQL);
-    PlayerInfo[playerid][pExp] = cache_get_field_content_int(0, "exp", MySQL);
-    cache_get_field_content(0, "pass", temp, MySQL); format(PlayerInfo[playerid][pPass], 33, "%s", temp);
-    cache_get_field_content(0, "email", temp, MySQL); format(PlayerInfo[playerid][pEMail], 64, "%s", temp);
-    PlayerInfo[playerid][pBanned] = cache_get_field_content_int(0, "banned", MySQL);
-    PlayerInfo[playerid][pMuted] = cache_get_field_content_int(0, "muted", MySQL);
-    PlayerInfo[playerid][pBans] = cache_get_field_content_int(0, "bans", MySQL);
-    PlayerInfo[playerid][pWarns] = cache_get_field_content_int(0, "warns", MySQL);
-    PlayerInfo[playerid][pKick] = cache_get_field_content_int(0, "kicks", MySQL);
-    PlayerInfo[playerid][pMutes] = cache_get_field_content_int(0, "mutes", MySQL);
-    
-    SetPlayerScore(playerid, PlayerInfo[playerid][pLvl]);
-	return 1;
-}
 
 stock RegisterPlayer(playerid)
 {
@@ -188,26 +155,6 @@ stock GetPlayerIDByName(name[])
 	format(strSQLQuery, sizeof(strSQLQuery), "SELECT `id` FROM `players` WHERE `name` = '%s'", name);
 	mysql_query(MySQL, strSQLQuery);
 	return cache_get_field_content_int(0, "id", MySQL);
-}
-
-stock SavePlayerData(playerid)
-{
-	format(strSQLQuery, sizeof(strSQLQuery), "UPDATE `players` SET");
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `name` = '%s',", strSQLQuery, PlayerInfo[playerid][pName]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `pass` = '%s',", strSQLQuery, PlayerInfo[playerid][pPass]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `email` = '%s',", strSQLQuery, PlayerInfo[playerid][pEMail]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `sex` = '%i',", strSQLQuery, PlayerInfo[playerid][pSex]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `lvl` = '%i',", strSQLQuery, PlayerInfo[playerid][pLvl]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `exp` = '%i',", strSQLQuery, PlayerInfo[playerid][pExp]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `banned` = '%i',", strSQLQuery, PlayerInfo[playerid][pBanned]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `muted` = '%i',", strSQLQuery, PlayerInfo[playerid][pMuted]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `bans` = '%i',", strSQLQuery, PlayerInfo[playerid][pBans]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `warns` = '%i',", strSQLQuery, PlayerInfo[playerid][pWarns]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `mutes` = '%i',", strSQLQuery, PlayerInfo[playerid][pMutes]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s `kicks` = '%i'", strSQLQuery, PlayerInfo[playerid][pKicks]);
-	format(strSQLQuery, sizeof(strSQLQuery), "%s WHERE `id` = '%i'", strSQLQuery, PlayerInfo[playerid][pID]);
-	mysql_query(MySQL, strSQLQuery);
-	return 1;
 }
 
 //------------------------------------
@@ -228,23 +175,26 @@ CMD:stats(playerid,params[])
 
 stock ShowPlayerStats(playerid, showid)
 {
-	if(!PlayerInfo[showid][pLogged]) return SendClientMessageEx(playerid,CLR_ERROR,"Ошибка: {"#COLOR_ERROR"}Этот игрок не авторизован");
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"{"#COLOR_DIALOG_BODY"}Имя: \t\t\t\t\t{"#COLOR_NOTE"}%s\n", PlayerInfo[showid][pName]);
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Уровень: \t\t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, PlayerInfo[showid][pLvl]);
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Очки опыта: \t\t\t\t{"#COLOR_NOTE"}%i из %i\n", strTextPlayerDialog, PlayerInfo[showid][pExp], PlayerInfo[showid][pLvl] * 8);
-    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Пол: \t\t\t\t\t{"#COLOR_NOTE"}%s\n", strTextPlayerDialog, PlayerInfo[showid][pSex] == 0 ? ("Мужской") : ("Женский"));
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Регистрационный номер: \t\t{"#COLOR_NOTE"}%d\n", strTextPlayerDialog, PlayerInfo[showid][pID]);
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Почта: \t\t\t\t\t{"#COLOR_NOTE"}%s\n", strTextPlayerDialog, PlayerInfo[showid][pEMail]);
+	if(GetPVarInt(playerid, "logged") != 1) return SendClientMessageEx(playerid,CLR_ERROR,"Ошибка: {"#COLOR_ERROR"}Этот игрок не авторизован");
+	new temp[128];
+	GetPVarString(showid,"name",temp, sizeof(temp));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"{"#COLOR_DIALOG_BODY"}Имя: \t\t\t\t\t{"#COLOR_NOTE"}%s\n", temp);
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Уровень: \t\t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"lvl"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Очки опыта: \t\t\t\t{"#COLOR_NOTE"}%i из %i\n", strTextPlayerDialog, GetPVarInt(showid,"exp"), GetPVarInt(showid,"lvl") * 8);
+    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Пол: \t\t\t\t\t{"#COLOR_NOTE"}%s\n", strTextPlayerDialog, GetPVarInt(showid,"sex") == 0 ? ("Мужской") : ("Женский"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Регистрационный номер: \t\t{"#COLOR_NOTE"}%d\n", strTextPlayerDialog, GetPVarInt(showid,"id"));
+	GetPVarString(showid,"email",temp, sizeof(temp));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Почта: \t\t\t\t\t{"#COLOR_NOTE"}%s\n", strTextPlayerDialog, temp);
 	
 	new Float: x, Float: y, Float: z;
 	GetPlayerPos(showid, x, y, z);
 	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}Текущее местоположение: \t\t{"#COLOR_NOTE"}%s, %s\n", strTextPlayerDialog, Zones[GetZone(x, y, z)][zone_name], Cities[GetZone(x, y, z)][zone_name]);
 	
 	
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}Блокировок аккаунта: \t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, PlayerInfo[showid][pBans]);
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Блокировок чата: \t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, PlayerInfo[showid][pMutes]);
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Предупреждений: \t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, PlayerInfo[showid][pWarns]);
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Киков: \t\t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, PlayerInfo[showid][pKicks]);
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}Блокировок аккаунта: \t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"bans"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Блокировок чата: \t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"mutes"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Предупреждений: \t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"warns"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Киков: \t\t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"kicks"));
  	Dialog_Show(playerid, MsgBox,DIALOG_STYLE_MSGBOX,"{"#COLOR_DIALOG_HEAD"}Статистика игрока",strTextPlayerDialog,"Закрыть","");
 	return 1;
 }
@@ -255,26 +205,28 @@ Dialog:Log(playerid, response, listitem, inputtext[])
 {
     if (response)
     {
+        new temp[MAX_PLAYER_NAME];
+        GetPVarString(playerid, "name", temp, MAX_PLAYER_NAME);
         if(!isnull(inputtext))
         {
-			format(strSQLQuery, sizeof(strSQLQuery), "SELECT * FROM `players` WHERE `name` = '%s' AND `pass` = '%s'", PlayerInfo[playerid][pName], MD5_Hash(inputtext));
-			new Cache:result = mysql_query(MySQL, strSQLQuery);
+			format(strSQLQuery, sizeof(strSQLQuery), "SELECT * FROM `players` WHERE `name` = '%s' AND `pass` = '%s'", temp, MD5_Hash(inputtext));
+			mysql_query(MySQL, strSQLQuery);
             if(cache_num_rows() != 0)
             {
-                mysql_function_query(MySQL, strSQLQuery, true, "LoadPlayerData","i", playerid);
-                LoadPlayerData(playerid);
+                //mysql_function_query(MySQL, strSQLQuery, true, "LoadPlayerData","i", playerid);
+                
                 PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
-                PlayerInfo[playerid][pLogged] = true;
+                SetPVarInt(playerid, "logged", 1);
                 SpawnPlayer(playerid);
-                PlayerInfo[playerid][pWrongEntering] = 0;
+                DeletePVar(playerid, "wrong_entering");
             }
             else
             {
-                if(PlayerInfo[playerid][pWrongEntering] != 3)
+                if(GetPVarInt(playerid, "wrong_entering") != 3)
                 {
-                    PlayerInfo[playerid][pWrongEntering]++;
+                    SetPVarInt(playerid, "wrong_entering", GetPVarInt(playerid, "wrong_entering") + 1);
 	                PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-	                format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Добро пожаловать на сервер\nИгровой аккаунт с этим имененем зарегистрирован\n\nИмя: {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"}\nВведите пароль:", PlayerInfo[playerid][pName]);
+	                format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Добро пожаловать на сервер\nИгровой аккаунт с этим имененем зарегистрирован\n\nИмя: {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"}\nВведите пароль:", temp);
 			    	Dialog_Show(playerid, Log, DIALOG_STYLE_PASSWORD, "{"#COLOR_DIALOG_HEAD"}Авторизация: Введите пароль {"#COLOR_ERROR"}[Пароль неверный!]", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Ввод", "{"#COLOR_ERROR"}Выход");
 				}
 				else
@@ -288,7 +240,7 @@ Dialog:Log(playerid, response, listitem, inputtext[])
         else
         {
             PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-            format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Добро пожаловать на сервер\nИгровой аккаунт с этим имененем зарегистрирован\n\nИмя: {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"}\nВведите пароль:", PlayerInfo[playerid][pName]);
+            format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Добро пожаловать на сервер\nИгровой аккаунт с этим имененем зарегистрирован\n\nИмя: {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"}\nВведите пароль:", temp);
 			Dialog_Show(playerid, Log, DIALOG_STYLE_PASSWORD, "{"#COLOR_DIALOG_HEAD"}Авторизация: Введите пароль {"#COLOR_ERROR"}[Поле ввода пустое!]", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Ввод", "{"#COLOR_ERROR"}Выход");
 		}
 
@@ -306,7 +258,7 @@ Dialog:RegPassEnter(playerid, response, listitem, inputtext[])
     {
         if(!isnull(inputtext))
         {
-            format(PlayerInfo[playerid][pPass], 33, "%s", MD5_Hash(inputtext));
+            SetPVarString(playerid, "pass", MD5_Hash(inputtext));
             PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
             format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Введите адрес Вашей электронной почты\nВ дальнейшем он может понадобиться для восстановление доступа к игровому аккаунту, в случае взлома или если Вы забудите пароль\n\n");
     		format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s{"#COLOR_DIALOG_BODY"}На введенный адрес будет выслан код, который необходим для подтверждения\nЭто может занять от 1 до 5 минут", strTextPlayerDialog);
@@ -338,29 +290,29 @@ Dialog:RegEMailEnter(playerid, response, listitem, inputtext[])
         {
 	        if(IsValidEmail(inputtext))
 	        {
-	            format(PlayerInfo[playerid][pEMail], 64,"%s", inputtext);
+	            SetPVarString(playerid, "email", inputtext);
                 PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
-				format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}На почтовый адрес {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"} был отправлен код\n", PlayerInfo[playerid][pEMail]);
+				format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}На почтовый адрес {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"} был отправлен код\n", inputtext);
 				format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s{"#COLOR_DIALOG_BODY"}Сверните игру с помощью комбинации {"#COLOR_NOTE"}(alt+tab){"#COLOR_DIALOG_BODY"}, скопируйте и вставьте его в это окно\n", strTextPlayerDialog);
 	   			Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_INPUT, "{"#COLOR_DIALOG_HEAD"}Регистрация: Подтверждение EMail", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Ввод", "{"#COLOR_ERROR"}Выход");
 	   			
-				PlayerInfo[playerid][pEMailConfirmCode] = 1000 + random(899);
+				SetPVarInt(playerid, "email_confirm_code", 1000 + random(899));
 				new theme[256], subject[256];
 				format(subject, sizeof(subject), "Подтверждение регистрации");
-				format(theme, sizeof(theme),"Скопируйте код подтверждение и вставьте в диалоговое окно в игре <br>Код: <b>%i</b>", PlayerInfo[playerid][pEMailConfirmCode]);
-				SendMail( PlayerInfo[playerid][pEMail], "noreply@epic-rp.su", "Epic Interactive", subject, theme );
-				PlayerInfo[playerid][pWrongEntering] = 0;
+				format(theme, sizeof(theme),"Скопируйте код подтверждение и вставьте в диалоговое окно в игре <br>Код: <b>%i</b>", GetPVarInt(playerid, "email_confirm_code"));
+				SendMail( inputtext, "noreply@epic-rp.su", "Epic Interactive", subject, theme );
+				DeletePVar(playerid, "wrong_entering");
 			}
 	        else
 	        {
-				if(PlayerInfo[playerid][pWrongEntering] != 3)
+				if(GetPVarInt(playerid, "wrong_entering") != 3)
 				{
 				    PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
                     format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}Введите адрес Вашей электронной почты\nВ дальнейшем он может понадобиться для восстановление доступа к игровому аккаунту, в случае взлома или если Вы забудите пароль\n\n");
     				format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s{"#COLOR_DIALOG_BODY"}На введенный адрес будет выслан код, который необходим для подтверждения\nЭто может занять от 1 до 5 минут", strTextPlayerDialog);
     				format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s\n\n\t{"#COLOR_NOTE"}Примечание:\n\t- не используйте сервисы временных почтовых адресов\n\t- в случае потери доступа к почтовому адресу, игровой аккаунт будет удалён", strTextPlayerDialog);
 	   			 	Dialog_Show(playerid, RegEMailEnter, DIALOG_STYLE_INPUT, "{"#COLOR_DIALOG_HEAD"}Регистрация: Ввод EMail   {"#COLOR_ERROR"}[Невалидный EMail!]", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Ввод", "{"#COLOR_ERROR"}Выход");
-					PlayerInfo[playerid][pWrongEntering]++;
+					SetPVarInt(playerid, "wrong_entering", GetPVarInt(playerid, "wrong_entering") + 1);
 				}
 				else
 				{
@@ -390,23 +342,25 @@ Dialog:RegEMailVerification(playerid, response, listitem, inputtext[])
 {
     if (response)
     {
+        new temp[64];
+        GetPVarString(playerid, "email", temp, 64);
 		if(!isnull(inputtext))
   		{
-  		    if(strval(inputtext) == PlayerInfo[playerid][pEMailConfirmCode])
+  		    if(strval(inputtext) == GetPVarInt(playerid, "email_confirm_code"))
   		    {
 				PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
 		    	Dialog_Show(playerid, RegSexSelect, DIALOG_STYLE_MSGBOX, "{"#COLOR_DIALOG_HEAD"}Регистрация: Выбор пола персонажа", "{"#COLOR_DIALOG_BODY"}Выберите пол вашего персонажа\n\n\t{"#COLOR_NOTE"}Примечание:\n\t- в дальнейшем его можно будет сменить в Меню игрока»Дополнительно (/mm)", "{"#COLOR_SUCCESS"}Мужской", "{"#COLOR_ERROR"}Женский");
-                PlayerInfo[playerid][pWrongEntering] = 0;
+                DeletePVar(playerid, "wrong_entering");
 			}
 			else
 			{
-			    if(PlayerInfo[playerid][pWrongEntering] != 3)
+			    if(GetPVarInt(playerid, "wrong_entering") != 3)
 			    {
 			    	PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-			    	format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}На почтовый адрес {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"} был отправлен код\n", PlayerInfo[playerid][pEMail]);
+			    	format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}На почтовый адрес {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"} был отправлен код\n", temp);
 					format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s{"#COLOR_DIALOG_BODY"}Сверните игру с помощью комбинации {"#COLOR_NOTE"}(alt+tab){"#COLOR_DIALOG_BODY"}, скопируйте и вставьте его в это окно\n", strTextPlayerDialog);
 	   				Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_INPUT, "{"#COLOR_DIALOG_HEAD"}Регистрация: Подтверждение EMail {"#COLOR_ERROR"}[Код неверный!]", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Ввод", "{"#COLOR_ERROR"}Выход");
-	   				PlayerInfo[playerid][pWrongEntering]++;
+	   				SetPVarInt(playerid, "wrong_entering", GetPVarInt(playerid, "wrong_entering") + 1);
 				}
 				else
 				{
@@ -418,7 +372,7 @@ Dialog:RegEMailVerification(playerid, response, listitem, inputtext[])
 		else
   		{
 		    PlayerPlaySound(playerid, S_DENY, 0.0, 0.0, 10.0);
-            format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}На почтовый адрес {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"} был отправлен код\n", PlayerInfo[playerid][pEMail]);
+            format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}На почтовый адрес {"#COLOR_NOTE"}%s{"#COLOR_DIALOG_BODY"} был отправлен код\n", temp);
 			format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s{"#COLOR_DIALOG_BODY"}Сверните игру с помощью комбинации {"#COLOR_NOTE"}(alt+tab){"#COLOR_DIALOG_BODY"}, скопируйте и вставьте его в это окно\n", strTextPlayerDialog);
 	   		Dialog_Show(playerid, RegEMailVerification, DIALOG_STYLE_INPUT, "{"#COLOR_DIALOG_HEAD"}Регистрация: Подтверждение EMail {"#COLOR_ERROR"}[Поле ввода пустое!]", strTextPlayerDialog, "{"#COLOR_SUCCESS"}Ввод", "{"#COLOR_ERROR"}Выход");
 		}
@@ -435,15 +389,15 @@ Dialog:RegSexSelect(playerid, response, listitem, inputtext[])
 {
     if (response)
     {
-        PlayerInfo[playerid][pSex] = 0;
+        SetPVarInt(playerid, "sex", 0);
     }
     else
     {
-        PlayerInfo[playerid][pSex] = 1;
+        SetPVarInt(playerid, "sex", 1);
     }
     RegisterPlayer(playerid);
     PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
-    PlayerInfo[playerid][pLogged] = true;
+    SetPVarInt(playerid, "logged", 1);
     SpawnPlayer(playerid);
     return 1;
 }
@@ -472,9 +426,9 @@ forward OnPlayerSpawn_players(playerid);
 
 public OnPlayerDisconnect(playerid, reason)
 {
-	if(PlayerInfo[playerid][pLogged])
+	if(GetPVarInt(playerid, "logged") == 1)
 	{
-	    SavePlayerData(playerid);
+	    //SavePlayerData(playerid);
 	}
 #if    defined    OnPlayerDisconnect_players
     OnPlayerDisconnect_players(playerid, reason);
@@ -550,13 +504,13 @@ public PlayersPayDay()
     foreach(Player, i)
 	{
 	    PlayerPlaySound(i, S_MISSIONCOMPLETE, 0.0, 0.0, 10.0);
-	    PlayerInfo[i][pExp]++;
-	    if(PlayerInfo[i][pExp] > PlayerInfo[i][pLvl]*4)
+	    SetPVarInt(i,"exp", GetPVarInt(i,"exp") + 1);
+	    if(GetPVarInt(i,"exp") > GetPVarInt(i,"lvl") * 4)
 	    {
-	        PlayerInfo[i][pExp] = 0;
-	        PlayerInfo[i][pLvl]++;
+	        SetPVarInt(i,"exp", 0);
+	        SetPVarInt(i,"lvl", GetPVarInt(i,"lvl") + 1);
 	        SendClientMessageEx(i, CLR_NOTE,"«i»: {"#cOLOR_WHITE"}Вы достигли следующего уровня.{"#COLOR_SUCCES"} Поздравляем!");
-	        SetPlayerScore(i, PlayerInfo[i][pLvl]);
+	        SetPlayerScore(i, GetPVarInt(i,"lvl"));
 	    }
 	}
 	new hour,minute,second;
