@@ -4,7 +4,7 @@ regex_match(%1, "([A-Z]{1,1})[a-z]{2,9}+_([A-Z]{1,1})[a-z]{2,9}")
 	regex_match(%1, "[a-zA-Z0-9_\\.]+@([a-zA-Z0-9\\-]+\\.)+[a-zA-Z]{2,4}")
 
 #define Kick(%0) \
-	PlayerInfo[%0][pForKick] = true
+	SetPVarInt(%0, "forkick", 1)
 
 //------------------------------------
 
@@ -21,30 +21,6 @@ new FieldInfo[2][fInfo] =
 	{"lvl", 1, 0}
 };
 
-enum pInfo
-{
-	pID,
-	pName[MAX_PLAYER_NAME],
-	pPass[33],
-	pEMail[64],
-	pBanned,
-	pMuted,
-	pKicks,
-	pBans,
-	pMutes,
-	pWarns,
-	pSex,
-	pExp,
-	pLvl,
-	//Не сохраняемые
-	bool: pLogged,
-	bool: pForKick,
-	pKick,
-	pWrongEntering,
-	pEMailConfirmCode
-};
-
-new PlayerInfo[MAX_PLAYERS][pInfo];
 
 #define MAX_PERMISSIONS 27
 enum perInfo
@@ -160,24 +136,30 @@ forward OnPlayerConnect_players(playerid);
 forward LoadFromPlayerTableInToPVar(playerid);
 public LoadFromPlayerTableInToPVar(playerid)
 {
-	new field_name[32], dest[128], temp[128];
+	new field_name[32], dest[128], Float: floatdata, integerdata;
 	for(new i = 0; i < cache_get_field_count();i++)
 	{
 		cache_get_field_name(i, field_name);
 		cache_get_field_content(0, field_name, dest);
-		if(!sscanf(dest,"i"))
+		
+		if(!sscanf(dest,"i", integerdata))
 		{
-
-			SetPVarInt(playerid, field_name, cache_get_field_content_int(0, field_name, MySQL));
+		    format(strIOText, sizeof(strIOText), "%s is integer and = %i", dest, integerdata);
+			print(strIOText);
+			SetPVarInt(playerid, field_name, integerdata);
 		}
-		else if(!sscanf(dest,"f"))
+		else if(!sscanf(dest,"f", floatdata))
 		{
-			SetPVarFloat(playerid, field_name, cache_get_field_content_int(0, field_name, MySQL));
+		    format(strIOText, sizeof(strIOText), "%s is float and = %f", dest, floatdata);
+			print(strIOText);
+			SetPVarFloat(playerid, field_name, floatdata);
 		}
-		else if(!sscanf(dest,"s"))
+		
+		else if(!sscanf(dest,"s[128]", dest))
 		{
-			cache_get_field_content(0, field_name, temp, MySQL);
-			SetPVarString(playerid, field_name, temp);
+			format(strIOText, sizeof(strIOText), "%s is string", dest);
+			print(strIOText);
+			SetPVarString(playerid, field_name, dest);
 		}
 	}
 	return 1;
@@ -211,27 +193,31 @@ public LoadFromPVarInToPlayerTable(playerid)
 	        case PLAYER_VARTYPE_STRING:
 	        {
 	            GetPVarString(playerid, field_name, temp, sizeof(temp));
-	 			format(strSQLQuery, sizeof(strSQLQuery),"%s `%s` = '%s'",strSQLQuery, field_name, GetPVarInt(playerid, temp));
+	 			format(strSQLQuery, sizeof(strSQLQuery),"%s `%s` = '%s'",strSQLQuery, field_name, temp);
 	        }
     	}
 
-    	if(i < GetPVarsUpperIndex(playerid) + 1)
+    	if(i < GetPVarsUpperIndex(playerid) - 1)
     	{
     		format(strSQLQuery, sizeof(strSQLQuery),"%s,",strSQLQuery);
     	}
 	}
 
-	format(strSQLQuery, sizeof(strSQLQuery),"%s WHERE `id` = '%s'",strSQLQuery, PlayerInfo[playerid][pID]);
-
+	format(strSQLQuery, sizeof(strSQLQuery),"%s WHERE `id` = '%i'",strSQLQuery, GetPVarInt(playerid, "id"));
+	print(strSQLQuery);
 	mysql_query(MySQL, strSQLQuery);
 	return 1;
 }
 
 stock RegisterPlayer(playerid)
 {
-	format(strSQLQuery, sizeof(strSQLQuery), "INSERT INTO `players` (`name`, `pass`, `email`, `sex`) VALUES ('%s', '%s', '%s', '%i')", PlayerInfo[playerid][pName], PlayerInfo[playerid][pPass], PlayerInfo[playerid][pEMail], PlayerInfo[playerid][pSex]);
+	new name[MAX_PLAYER_NAME], email[64], pass[33];
+	GetPVarString(playerid, "name", name, sizeof(name));
+	GetPVarString(playerid, "email", email, sizeof(email));
+	GetPVarString(playerid, "pass", pass, sizeof(pass));
+	format(strSQLQuery, sizeof(strSQLQuery), "INSERT INTO `players` (`name`, `pass`, `email`, `sex`) VALUES ('%s', '%s', '%s', '%i')", name, pass, email, GetPVarInt(playerid, "sex"));
     mysql_query(MySQL, strSQLQuery);
-    PlayerInfo[playerid][pID] = GetPlayerIDByName(PlayerInfo[playerid][pName]);
+    SetPVarInt(playerid, "id", GetPlayerIDByName(name));
     
     SendClientMessageEx(playerid, CLR_NOTE,"«i»: {"#cOLOR_WHITE"}Вы успешно прошли регистрацию.{"#COLOR_SUCCESS"} Поздравляем!");
 	return 1;
@@ -242,6 +228,107 @@ stock GetPlayerIDByName(name[])
 	format(strSQLQuery, sizeof(strSQLQuery), "SELECT `id` FROM `players` WHERE `name` = '%s'", name);
 	mysql_query(MySQL, strSQLQuery);
 	return cache_get_field_content_int(0, "id", MySQL);
+}
+
+//------------------------------------
+
+CMD:mainmenu(playerid,params[])
+{
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "1. Статистика\n2. Доступные права\n3. Игровая справка\n4. Обратная связь\n5. Магазин [Баланс: %iруб.]", GetPVarInt(playerid, "donate"));
+    Dialog_Show(playerid, mainmenu,DIALOG_STYLE_LIST,"{"#COLOR_DIALOG_HEAD"}Меню игрока",strTextPlayerDialog,"Выбор","Закрыть");
+	return 1;
+}
+
+ALTX:mainmenu("/mm", "/mn");
+
+Dialog:mainmenu(playerid, response, listitem, inputtext[])
+{
+    if (response)
+    {
+		switch(listitem)
+		{
+		    case 0:
+		    {
+		        ShowPlayerStats(playerid, playerid);
+		    }
+		    case 1:
+		    {
+
+		    }
+		    case 2:
+		    {
+
+		    }
+		    case 3:
+		    {
+
+		    }
+		    case 4:
+		    {
+                ShowDonateMenu(playerid);
+		    }
+		}
+    }
+    else
+    {
+
+    }
+    return 1;
+}
+
+//------------------------------------
+
+stock ShowDonateMenu(playerid)
+{
+    format(strHeaderPlayerDialog, sizeof(strHeaderPlayerDialog), "{"#COLOR_DIALOG_HEAD"}Магазин [Баланс: %iруб.]", GetPVarInt(playerid, "donate"));
+    Dialog_Show(playerid, donate,DIALOG_STYLE_LIST, strHeaderPlayerDialog,"1. Купить игровую валюту\n2. Купить игровые права\n3. Пополнить счёт\n4. Рефералы","Выбор","Закрыть");
+	return 1;
+}
+
+Dialog:donate(playerid, response, listitem, inputtext[])
+{
+    if (response)
+    {
+		switch(listitem)
+		{
+		    case 0:
+		    {
+		        
+		    }
+		    case 1:
+		    {
+                ShowPermissionsShop(playerid);
+		    }
+		    case 2:
+		    {
+
+		    }
+		    case 3:
+		    {
+
+		    }
+		    case 4:
+		    {
+                ShowDonateMenu(playerid);
+		    }
+		}
+    }
+    else
+    {
+
+    }
+    return 1;
+}
+
+stock ShowPermissionsShop(playerid)
+{
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "");
+	for(new i=0;i<sizeof(permissionInfo);i++)
+	{
+	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s%i. %s\n",strTextPlayerDialog, i+1, permissionInfo[i][perName]);
+	}
+	Dialog_Show(playerid, donate,DIALOG_STYLE_LIST, "{"#COLOR_DIALOG_HEAD"}Покупка игровых прав",strTextPlayerDialog,"Купить","Закрыть");
+	return 1;
 }
 
 //------------------------------------
@@ -438,6 +525,7 @@ Dialog:RegEMailVerification(playerid, response, listitem, inputtext[])
 				PlayerPlaySound(playerid, S_ACCEPT, 0.0, 0.0, 10.0);
 		    	Dialog_Show(playerid, RegSexSelect, DIALOG_STYLE_MSGBOX, "{"#COLOR_DIALOG_HEAD"}Регистрация: Выбор пола персонажа", "{"#COLOR_DIALOG_BODY"}Выберите пол вашего персонажа\n\n\t{"#COLOR_NOTE"}Примечание:\n\t- в дальнейшем его можно будет сменить в Меню игрока»Дополнительно (/mm)", "{"#COLOR_SUCCESS"}Мужской", "{"#COLOR_ERROR"}Женский");
                 DeletePVar(playerid, "wrong_entering");
+                DeletePVar(playerid, "email_confirm_code");
 			}
 			else
 			{
@@ -516,6 +604,7 @@ public OnPlayerDisconnect(playerid, reason)
 {
 	if(GetPVarInt(playerid, "logged") == 1)
 	{
+	    DeletePVar(playerid, "logged");
 	    LoadFromPVarInToPlayerTable(playerid);
 	}
 #if    defined    OnPlayerDisconnect_players
@@ -538,13 +627,13 @@ forward OnPlayerDisconnect_players(playerid, reason);
 
 public OnPlayerUpdate(playerid)
 {
-	if(PlayerInfo[playerid][pForKick])
+	if(GetPVarInt(playerid, "forkick") == 1)
 	    {
 	    	Kick(playerid);
 	    }
-	if(PlayerInfo[playerid][pLogged])
+	if(GetPVarInt(playerid, "logged") == 1)
 	{
-	    
+
 	}
 #if    defined    OnPlayerUpdate_players
     OnPlayerUpdate_players(playerid);
@@ -684,10 +773,7 @@ stock ProxDetectorNew(playerid,Float:Radi=10.0,color,text[])
 
 public OnPlayerText(playerid, text[])
 {
-	{
-		format(strIOText, sizeof(strIOText), "%s: %s", PlayerInfo[playerid][pName], text);
-		ProxDetectorNew(playerid,20.0, COLOR_WHITE, strIOText);
-	}
+
 #if    defined    OnPlayerstrIOText
     OnPlayerstrIOText(playerid, text);
 #endif
@@ -704,56 +790,6 @@ public OnPlayerText(playerid, text[])
 forward OnPlayerstrIOText(playerid, text[]);
 #endif
 
-//------------------------------------
-
-CMD:b(playerid,params[])
-{
-    if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid, CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}/b [сообщение]");
-	format(strIOText, sizeof(strIOText), "(( %s: %s ))", PlayerInfo[playerid][pName],params);
-	ProxDetectorNew(playerid,5.0,COLOR_GRAY,strIOText);
-	return 1;
-}
-
-CMD:try(playerid,params[])
-{
-    if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid, CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}/try [сообщение]");
-	format(strIOText,sizeof(strIOText),"%s %s {"#cOLOR_WHITE"}(( %s ))",PlayerInfo[playerid][pName],params[0],random(2) == 1 ? ("Удачно") : ("Неудачно"));
-	ProxDetectorNew(playerid,5.0,COLOR_PINK,strIOText);
-	return 1;
-}
-
-CMD:do(playerid,params[])
-{
-    if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid, CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}/do [сообщение]");
-	format(strIOText, sizeof(strIOText), "%s {"#cOLOR_WHITE"}(( %s ))",params,PlayerInfo[playerid][pName]);
-	ProxDetectorNew(playerid,5.0, COLOR_PINK,strIOText);
-	return 1;
-}
-
-CMD:low(playerid,params[])
-{
-    if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid, CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}/low [сообщение]");
-	format(strIOText, sizeof(strIOText), "%s тихо произнес: %s", PlayerInfo[playerid][pName],params);
-	ProxDetectorNew(playerid,2.0,COLOR_WHITE,strIOText);
-	return 1;
-}
-
-CMD:s(playerid,params[])
-{
-    if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid, CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}/s [сообщение]");
-	format(strIOText, sizeof(strIOText), "%s крикнул: %s", PlayerInfo[playerid][pName],params);
-	ProxDetectorNew(playerid,50.0,COLOR_WHITE,strIOText);
-	ApplyAnimationEx(playerid,"ON_LOOKERS","shout_01",4.1,0,0,0,0,0,0);
-	return 1;
-}
-
-CMD:me(playerid,params[])
-{
-    if(sscanf(params,"s[128]",params)) return SendClientMessageEx(playerid, CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}/me [сообщение]");
-	format(strIOText, sizeof(strIOText), "%s %s", PlayerInfo[playerid][pName],params);
-	ProxDetectorNew(playerid,5.0,COLOR_PINK,strIOText);
-	return 1;
-}
 
 //------------------------------------
 
