@@ -80,6 +80,7 @@ new strSQLQuery[1024];//Для запросов к базе данных
 
 #include <epicrp/gps.inc>
 #include <epicrp/players.inc>
+#include <epicrp/animations.inc>
 #include <epicrp/vehicles.inc>
 #include <epicrp/interiors.inc>
 #include <epicrp/inventory.inc>
