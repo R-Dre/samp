@@ -22,16 +22,18 @@ new FieldInfo[2][fInfo] =
 };
 
 
-#define MAX_PERMISSIONS 27
-enum perInfo
+#define MAX_RIGHTS 27
+enum rInfo
 {
-	perName[60],
-	perDesc[128]
+	rightName[60],
+	rightDesc[128]
 };
 
-new permissionInfo[MAX_PERMISSIONS][perInfo] =
+#define SETRIGHT 0
+
+new rightInfo[MAX_RIGHTS][rInfo] =
 {
-	{"Управлять разрешениями", "/setperm"},
+	{"Управлять разрешениями", "/setright"},
 	{"Удалять аккаунты", "Недоступно"},//1
 	{"Изменять аккаунты", "Недоступно"},
 	{"Блокировать аккаунты", "/ban"},
@@ -323,13 +325,134 @@ Dialog:donate(playerid, response, listitem, inputtext[])
 stock ShowPermissionsShop(playerid)
 {
 	format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "");
-	for(new i=0;i<sizeof(permissionInfo);i++)
+	for(new i=0;i<sizeof(rightInfo);i++)
 	{
-	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s%i. %s\n",strTextPlayerDialog, i+1, permissionInfo[i][perName]);
+	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s%i. %s\n",strTextPlayerDialog, i+1, rightInfo[i][rightName]);
 	}
 	Dialog_Show(playerid, donate,DIALOG_STYLE_LIST, "{"#COLOR_DIALOG_HEAD"}Покупка игровых прав",strTextPlayerDialog,"Купить","Закрыть");
 	return 1;
 }
+
+//------------------------------------
+
+stock IsPlayerHasRight(playerid, rightid)
+{
+    format(strSQLQuery, sizeof(strSQLQuery),"SELECT * FROM `rights` WHERE `ownerid` = '%d' AND `rightid` = '%d' LIMIT 1", GetPVarInt(playerid, "id"), rightid);
+	mysql_query(MySQL, strSQLQuery);
+    if(cache_num_rows() == 1) return true;
+    else return false;
+}
+
+stock SetPlayerRight(playerid, rightid)
+{
+	if(IsPlayerHasRight(playerid, rightid))
+	{
+	    //Забираем право
+	    format(strSQLQuery, sizeof(strSQLQuery), "DELETE from `rights` WHERE `ownerid` = '%d' AND `rightid` = '%d'", GetPVarInt(playerid, "id"), rightid);
+		mysql_query(MySQL, strSQLQuery);
+	}
+	else
+	{
+		//Выдаем право
+		format(strSQLQuery, sizeof(strSQLQuery), "INSERT INTO `rights` (`ownerid`, `rightid`) VALUE ('%d', '%d')", GetPVarInt(playerid, "id"), rightid);
+		mysql_query(MySQL, strSQLQuery);
+	}
+	return 1;
+}
+
+CMD:setright(playerid,params[])
+{
+	if(!IsPlayerHasRight(playerid, SETRIGHT)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+	new targetid, rightid;
+	if(sscanf(params,"ii",targetid, rightid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте {"#COLOR_NOTE"}(/setright [playerid] [rightid])!");
+	if(!GetPVarInt(targetid,"logged")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Игрока с данным id нет на сервере или он не авторизован.");
+	SetPlayerRight(targetid, rightid);
+	SendClientMessageEx(playerid,CLR_SUCCESS,"«v»: Право установлено! {"#COLOR_NOTE"}(/rights [playerid])");
+	SendClientMessageEx(targetid,CLR_NOTE,"«i»: Администратор внес изменения в ваши права! {"#COLOR_NOTE"}(/rights)");
+	return 1;
+}
+
+stock ShowPlayerRights(playerid, showid)
+{
+    format(strSQLQuery, sizeof(strSQLQuery),"SELECT `rightid` FROM `rights` WHERE `ownerid` = '%d'", GetPVarInt(showid, "id"));
+    mysql_query(MySQL, strSQLQuery);
+    if(cache_num_rows() != 0)
+	{
+	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"");
+	    for(new i = 0; i < cache_num_rows();i++)
+	    {
+	        format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s%i. %s\n",strTextPlayerDialog, i + 1, rightInfo[ cache_get_field_content_int(i, "rightid", MySQL)][rightName]);
+	    }
+	    Dialog_Show(playerid, rightslist,DIALOG_STYLE_LIST, "{"#COLOR_DIALOG_HEAD"}Доступные права",strTextPlayerDialog,"Инф.","Закрыть");
+	}
+	else
+	{
+	    Dialog_Show(playerid, MsgBox,DIALOG_STYLE_LIST, "{"#COLOR_DIALOG_HEAD"}Доступные права","{"#COLOR_DIALOG_BODY"}Доступные права отсутствуют","Закрыть","");
+	}
+    return 1;
+}
+
+CMD:rights(playerid,params[])
+{
+	new showid;
+    if(sscanf(params,"i",showid))
+    {
+  		ShowPlayerRights(playerid, playerid);
+	}
+	else
+	{
+	    if(!IsPlayerHasRight(playerid, SETRIGHT)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+	    if(!GetPVarInt(showid,"logged")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Игрока с данным id нет на сервере или он не авторизован.");
+	    ShowPlayerRights(playerid, showid);
+	}
+	return 1;
+}
+
+//------------------------------------
+
+stock GetPlayerFaction(playerid)
+{
+
+	return 1;
+}
+
+stock SetPlayerFaction(playerid, factionid)//"-1" - без фракции
+{
+
+	return 1;
+}
+
+stock CreateFaction(factionid)
+{
+
+	return 1;
+}
+
+stock ShowFactionInfo(factionid)
+{
+
+	return 1;
+}
+
+stock SetFactionLeader(factionid, leaderid)//"-1" - без лидера
+{
+
+	return 1;
+}
+
+stock RenameFaction(factionid)
+{
+
+	return 1;
+}
+
+stock DeleteFaction(factionid)
+{
+
+	return 1;
+}
+
+
 
 //------------------------------------
 
