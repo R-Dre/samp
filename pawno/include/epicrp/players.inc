@@ -29,36 +29,49 @@ enum rInfo
 	rightDesc[128]
 };
 
-#define SETRIGHT 0
+#define SETRIGHT 			0
+#define SPEC                1
+#define BAN                 2
+#define WARN                3
+#define MUTE                4
+#define KICK                5
+#define GIVEMONEY           6
+#define TAKEMONEY           7
+#define SETLVL              8
+#define DELETEPLAYER        9
+
+
+
+#define RESTART 26
 
 new rightInfo[MAX_RIGHTS][rInfo] =
 {
 	{"Управлять разрешениями", "/setright"},
-	{"Удалять аккаунты", "Недоступно"},//1
-	{"Изменять аккаунты", "Недоступно"},
-	{"Блокировать аккаунты", "/ban"},
+	{"Наблюдать за игроками", "/spec"},//1
+	{"Блокировать игроков", "/banplayer"},
+	{"Делать предупреждения", "/warn"},
 	{"Блокировать чат", "/mute"},
 	{"Выкидывать с сервера", "/kick"},//5
-	{"Выдавать предупреждения", "/warn"},
-	{"Удалять персонажей", "Недоступно"},
-	{"Изменять персонажей", "Недоступно"},
-	{"Управлять инвентарем", "Недоступно"},
-	{"Удалять фракции", "/delfaction"},//10
-	{"Создавать фракции", "/createfaction"},
-	{"Изменять фракции", "/setfactionname"},
-	{"Управлять фракциями", "/setleader"},
-	{"Удалять недвижимость", "/delhouse"},
-	{"Создавать недвижимость", "/createhouse"},//15
-	{"Изменять недвижимость", "/hname, /hdesc"},
-	{"Управлять недвижимостью", "/lock"},
-	{"Удалять транспорт", "Недоступно"},
-	{"Создавать транспорт", "Недоступно"},
-	{"Изменять транспорт", "Недоступно"},//20
-	{"Управлять транспортом", "Недоступно"},
-	{"Разблокировать аккаунты", "/unban"},
-	{"Выдавать временный скин", "/setskin"},
-	{"Телепортироваться к игрокам", "/teleport"},
-	{"Просматривать интерьеры", "/showint"},//25
+	{"Давать деньги", "/givemoney"},
+	{"Забирать деньги", "/takemoney"},
+	{"Устанавливать уровень", "/setlvl"},
+	{"Удалять аккаунты", "/deleteplayer"},
+	{"Неустановленное право", "Недоступно"},//10
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},//15
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},//20
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},
+	{"Неустановленное право", "Недоступно"},//25
 	{"Перезапускать сервер", "/restart"}
 };
 //------------------------------------
@@ -381,7 +394,7 @@ stock ShowPlayerRights(playerid, showid)
 	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"");
 	    for(new i = 0; i < cache_num_rows();i++)
 	    {
-	        format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "%s%i. %s\n",strTextPlayerDialog, i + 1, rightInfo[ cache_get_field_content_int(i, "rightid", MySQL)][rightName]);
+	        format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}%s%i. %s [%i]\n",strTextPlayerDialog, i + 1, rightInfo[ cache_get_field_content_int(i, "rightid", MySQL)][rightName], cache_get_field_content_int(i, "rightid", MySQL));
 	    }
 	    Dialog_Show(playerid, rightslist,DIALOG_STYLE_LIST, "{"#COLOR_DIALOG_HEAD"}Доступные права",strTextPlayerDialog,"Инф.","Закрыть");
 	}
@@ -407,6 +420,91 @@ CMD:rights(playerid,params[])
 	}
 	return 1;
 }
+
+//------------------------------------
+
+CMD:restart(playerid)
+{
+    if(!IsPlayerHasRight(playerid, RESTART)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+	for(new i = 0; i < MAX_PLAYERS; i++)
+	{
+	    if(!GetPVarInt(i, "logged")) continue;
+	    SendClientMessageEx(i,CLR_NOTE,"«i»: {"#cOLOR_WHITE"}Происходит рестарт сервера! Введите {"#COLOR_NOTE"}(/quit){"#cOLOR_WHITE"}, если вы не будете переподключены автоматически.");
+	}
+    SendRconCommand("gmx");
+	return 1;
+}
+
+CMD:banplayer(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, BAN)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:kick(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, KICK)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:warn(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, WARN)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:mute(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, MUTE)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:ban(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, BAN)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:spec(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, SPEC)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:deleteplayer(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, DELETEPLAYER)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:givemoney(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, GIVEMONEY)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:takemoney(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, TAKEMONEY)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:setlvl(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, SETLVL)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+
+	return 1;
+}
+
 
 //------------------------------------
 
