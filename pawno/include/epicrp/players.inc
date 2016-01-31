@@ -39,8 +39,8 @@ enum rInfo
 #define TAKEMONEY           7
 #define SETLVL              8
 #define DELETEPLAYER        9
-
-
+#define SETGROUP            10
+#define CREATEGROUP         11
 
 #define RESTART 26
 
@@ -56,8 +56,8 @@ new rightInfo[MAX_RIGHTS][rInfo] =
 	{"Забирать деньги", "/takemoney"},
 	{"Устанавливать уровень", "/setlvl"},
 	{"Удалять аккаунты", "/deleteplayer"},
-	{"Неустановленное право", "Недоступно"},//10
-	{"Неустановленное право", "Недоступно"},
+	{"Управлять группами", "/setgroupleader, /renamegroup, /deletegroup"},//10
+	{"Создавать группы", "/creategroup"},
 	{"Неустановленное право", "Недоступно"},
 	{"Неустановленное право", "Недоступно"},
 	{"Неустановленное право", "Недоступно"},
@@ -245,6 +245,12 @@ stock GetPlayerIDByName(name[])
 	return cache_get_field_content_int(0, "id", MySQL);
 }
 
+stock GetPlayerNameByID(id, name[MAX_PLAYER_NAME])
+{
+    format(strSQLQuery, sizeof(strSQLQuery), "SELECT `name` FROM `players` WHERE `id` = '%d'", id);
+	mysql_query(MySQL, strSQLQuery);
+	cache_get_field_content(0, "name", name);
+}
 //------------------------------------
 
 CMD:mainmenu(playerid,params[])
@@ -508,49 +514,154 @@ CMD:setlvl(playerid,params[])
 
 //------------------------------------
 
-stock GetPlayerFaction(playerid)
+stock GetPlayerGroup(playerid)
 {
+    format(strSQLQuery, sizeof(strSQLQuery),"SELECT `groupid` FROM `playerid` WHERE `id` = '%d' LIMIT 1", GetPVarInt(playerid, "id"));
+	mysql_query(MySQL, strSQLQuery);
+	return cache_get_field_content_int(0, "groupid", MySQL);
+}
 
+stock SetPlayerGroup(id, groupid)//"-1" - без фракции
+{
+    format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `players` SET `groupid` = '%d' WHERE `id` = '%d'", groupid, id);
+	mysql_query(MySQL, strSQLQuery);
 	return 1;
 }
 
-stock SetPlayerFaction(playerid, factionid)//"-1" - без фракции
+CMD:setgroup(playerid, params[])
 {
+    if(!IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    new targetid, groupid;
+    if(sscanf(params,"ii",targetid, groupid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте (/setgroup [playerid] [groupid])");
+	SetPVarInt(targetid, "groupid", groupid);
+    return 1;
+}
 
+stock CreateGroup(groupname[], leaderid)
+{
+    format(strSQLQuery, sizeof(strSQLQuery), "INSERT INTO `groups` (`name`, `leaderid`) VALUES ('%s', '%d')", groupname, leaderid);
+    mysql_query(MySQL, strSQLQuery);
 	return 1;
 }
 
-stock CreateFaction(factionid)
+CMD:creategroup(playerid, params[])
 {
+    if(!IsPlayerHasRight(playerid, CREATEGROUP) && !IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    new name[32];
+    if(sscanf(params,"s[32]", name)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте (/creategroup [name])");
+	if(GetPVarInt(playerid, "groupid") != 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вы уже состоите в группе!");
+	CreateGroup(name, GetPVarInt(playerid, "id"));
+	
+	format(strSQLQuery, sizeof(strSQLQuery),"SELECT `id` FROM `groups` WHERE `leaderid` = '%d'", GetPVarInt(playerid, "id"));
+	mysql_query(MySQL, strSQLQuery);
+	SetPVarInt(playerid, "groupid", cache_get_field_content_int(0, "id", MySQL));
+	
+	format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `players` SET `groupid` = '%d' WHERE `id` = '%d'", GetPVarInt(playerid, "groupid"), GetPVarInt(playerid, "id"));
+	mysql_query(MySQL, strSQLQuery);
+	SendClientMessageEx(playerid,CLR_SUCCESS,"«v»: Группа успешно создана! (/groupinfo)");
+    return 1;
+}
 
+stock IsGroupExist(groupid)
+{
+    format(strSQLQuery, sizeof(strSQLQuery),"SELECT * FROM `groups` WHERE `id` = '%d'", groupid);
+	mysql_query(MySQL, strSQLQuery);
+    if(cache_num_rows() == 1) return true;
+    else return false;
+}
+
+stock ShowGroupInfo(playerid, groupid)
+{
+	
+    format(strSQLQuery, sizeof(strSQLQuery),"SELECT * FROM `groups` WHERE `id` = '%d' LIMIT 1", groupid);
+	mysql_query(MySQL, strSQLQuery);
+	if(cache_num_rows() == 1)
+	{
+	    new groupname[32], membersall, membersonline, leadername[MAX_PLAYER_NAME], leaderid, grouplvl, groupexp;
+		cache_get_field_content(0, "name", groupname);
+		leaderid = cache_get_field_content_int(0, "leaderid", MySQL);
+		grouplvl = cache_get_field_content_int(0, "lvl", MySQL);
+		groupexp = cache_get_field_content_int(0, "exp", MySQL);
+		if(leaderid != 0)
+		{
+		    GetPlayerNameByID(leaderid, leadername);
+		}
+		else
+		{
+		    format(leadername, sizeof(leadername),"отсутствует");
+		}
+		format(strSQLQuery, sizeof(strSQLQuery),"SELECT * FROM `players` WHERE `groupid` = '%d' LIMIT 1", groupid);
+		mysql_query(MySQL, strSQLQuery);
+
+		membersall = cache_num_rows();
+		for(new i = 0; i < MAX_PLAYERS; i++)
+		{
+		    if(GetPVarInt(i, "groupid") == groupid) membersonline++;
+		}
+	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"{"#COLOR_DIALOG_BODY"}Название:{"#COLOR_NOTE"}\t\t\t\t{"#COLOR_NOTE"}%s", groupname);
+	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nУровень:\t\t\t\t{"#COLOR_NOTE"}%i",strTextPlayerDialog, grouplvl);
+	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nОчки опыта:\t\t\t\t{"#COLOR_NOTE"}%i из %i",strTextPlayerDialog, groupexp, grouplvl*membersall*10);
+	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nРегистрационный номер:\t\t{"#COLOR_NOTE"}%i",strTextPlayerDialog, groupid);
+        format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\n\nЛидер:\t\t\t\t\t{"#COLOR_NOTE"}%s",strTextPlayerDialog, leadername);
+		format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nЧлены:\t\t\t\t{"#COLOR_NOTE"}%d из %d онлайн",strTextPlayerDialog, membersonline, membersall);
+	    Dialog_Show(playerid, MsgBox,DIALOG_STYLE_MSGBOX, "{"#COLOR_DIALOG_HEAD"}Статистика группы",strTextPlayerDialog,"Закрыть","");
+    }
+    else
+    {
+        SendClientMessageEx(playerid,CLR_ERROR,"«x»: Группы с данным id не существует!");
+    }
 	return 1;
 }
 
-stock ShowFactionInfo(factionid)
+CMD:groupinfo(playerid, params[])
 {
-
+    new groupid;
+    if(sscanf(params,"i",groupid))
+    {
+        if(GetPVarInt(playerid, "groupid") != 0)
+        {
+            ShowGroupInfo(playerid, GetPVarInt(playerid, "groupid"));
+        }
+        else
+		{
+		    SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вы не состоите в группе!");
+		}
+	}
+	else
+	{
+	    if(!IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+	    ShowGroupInfo(playerid, groupid);
+	}
 	return 1;
 }
 
-stock SetFactionLeader(factionid, leaderid)//"-1" - без лидера
+stock SetGroupLeader(groupid, leaderid)//"-1" - без лидера
 {
-
+    format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `groups` SET `leaderid` = '%d' WHERE `id` = '%d'", groupid, leaderid);
+	mysql_query(MySQL, strSQLQuery);
 	return 1;
 }
 
-stock RenameFaction(factionid)
+stock RenameGroup(groupid, name[])
 {
-
+    format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `groups` SET `name` = '%s' WHERE `id` = '%d'", name, groupid);
+	mysql_query(MySQL, strSQLQuery);
 	return 1;
 }
 
-stock DeleteFaction(factionid)
+stock DeleteGroup(groupid)
 {
-
+    format(strSQLQuery, sizeof(strSQLQuery), "DELETE from `groups` WHERE `id` = '%d'", groupid);
+	mysql_query(MySQL, strSQLQuery);
+	for(new i = 0; i < MAX_PLAYERS; i++)
+	{
+	    if(GetPVarInt(i, "groupid") != groupid) continue;
+	    SetPVarInt(i, "groupid", 0);
+	}
+	format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `players` SET `groupid` = '0' WHERE `groupid` = '%d'", groupid);
+	mysql_query(MySQL, strSQLQuery);
 	return 1;
 }
-
-
 
 //------------------------------------
 
@@ -573,23 +684,23 @@ stock ShowPlayerStats(playerid, showid)
 	if(GetPVarInt(playerid, "logged") != 1) return SendClientMessageEx(playerid,CLR_ERROR,"Ошибка: {"#COLOR_ERROR"}Этот игрок не авторизован");
 	new temp[128];
 	GetPVarString(showid,"name",temp, sizeof(temp));
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"{"#COLOR_DIALOG_BODY"}Имя: \t\t\t\t\t{"#COLOR_NOTE"}%s\n", temp);
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Уровень: \t\t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"lvl"));
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Очки опыта: \t\t\t\t{"#COLOR_NOTE"}%i из %i\n", strTextPlayerDialog, GetPVarInt(showid,"exp"), GetPVarInt(showid,"lvl") * 8);
-    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Пол: \t\t\t\t\t{"#COLOR_NOTE"}%s\n", strTextPlayerDialog, GetPVarInt(showid,"sex") == 0 ? ("Мужской") : ("Женский"));
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Регистрационный номер: \t\t{"#COLOR_NOTE"}%d\n", strTextPlayerDialog, GetPVarInt(showid,"id"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"{"#COLOR_DIALOG_BODY"}Имя: \t\t\t\t\t{"#COLOR_NOTE"}%s", temp);
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nУровень: \t\t\t\t{"#COLOR_NOTE"}%i", strTextPlayerDialog, GetPVarInt(showid,"lvl"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nОчки опыта: \t\t\t\t{"#COLOR_NOTE"}%i из %i", strTextPlayerDialog, GetPVarInt(showid,"exp"), GetPVarInt(showid,"lvl") * 8);
+    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nПол: \t\t\t\t\t{"#COLOR_NOTE"}%s", strTextPlayerDialog, GetPVarInt(showid,"sex") == 0 ? ("Мужской") : ("Женский"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nРегистрационный номер: \t\t{"#COLOR_NOTE"}%d", strTextPlayerDialog, GetPVarInt(showid,"id"));
 	GetPVarString(showid,"email",temp, sizeof(temp));
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Почта: \t\t\t\t\t{"#COLOR_NOTE"}%s\n", strTextPlayerDialog, temp);
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nПочта: \t\t\t\t\t{"#COLOR_NOTE"}%s", strTextPlayerDialog, temp);
 	
 	new Float: x, Float: y, Float: z;
 	GetPlayerPos(showid, x, y, z);
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}Текущее местоположение: \t\t{"#COLOR_NOTE"}%s, %s\n", strTextPlayerDialog, Zones[GetZone(x, y, z)][zone_name], Cities[GetZone(x, y, z)][zone_name]);
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}\nТекущее местоположение: \t\t{"#COLOR_NOTE"}%s, %s", strTextPlayerDialog, Zones[GetZone(x, y, z)][zone_name], Cities[GetZone(x, y, z)][zone_name]);
 	
 	
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}Блокировок аккаунта: \t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"bans"));
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Блокировок чата: \t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"mutes"));
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Предупреждений: \t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"warns"));
-	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}Киков: \t\t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"kicks"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n{"#COLOR_DIALOG_BODY"}\nБлокировок аккаунта: \t\t{"#COLOR_NOTE"}%i", strTextPlayerDialog, GetPVarInt(showid,"bans"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nБлокировок чата: \t\t\t{"#COLOR_NOTE"}%i", strTextPlayerDialog, GetPVarInt(showid,"mutes"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nПредупреждений: \t\t\t{"#COLOR_NOTE"}%i", strTextPlayerDialog, GetPVarInt(showid,"warns"));
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nКиков: \t\t\t\t{"#COLOR_NOTE"}%i\n", strTextPlayerDialog, GetPVarInt(showid,"kicks"));
  	Dialog_Show(playerid, MsgBox,DIALOG_STYLE_MSGBOX,"{"#COLOR_DIALOG_HEAD"}Статистика игрока",strTextPlayerDialog,"Закрыть","");
 	return 1;
 }

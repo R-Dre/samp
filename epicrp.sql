@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: 127.0.0.1
--- Время создания: Янв 31 2016 г., 16:33
+-- Время создания: Фев 01 2016 г., 02:08
 -- Версия сервера: 5.5.25
 -- Версия PHP: 5.3.13
 
@@ -19,6 +19,69 @@ SET time_zone = "+00:00";
 --
 -- База данных: `epicrp`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `groups`
+--
+
+CREATE TABLE IF NOT EXISTS `groups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(33) NOT NULL,
+  `leaderid` int(11) NOT NULL,
+  `lvl` int(11) NOT NULL DEFAULT '1',
+  `exp` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=43 ;
+
+--
+-- Дамп данных таблицы `groups`
+--
+
+INSERT INTO `groups` (`id`, `name`, `leaderid`, `lvl`, `exp`) VALUES
+(1, 'Администрация', 1, 1, 0),
+(2, 'SuchBigDildosWow', 0, 1, 0),
+(3, 'Reserv', 0, 1, 0),
+(4, 'Reserv', 0, 1, 0),
+(5, 'Reserv', 0, 1, 0),
+(6, 'Reserv', 0, 1, 0),
+(7, 'Reserv', 0, 1, 0),
+(8, 'Reserv', 0, 1, 0),
+(9, 'Reserv', 0, 1, 0),
+(10, 'Reserv', 0, 1, 0),
+(11, 'Reserv', 0, 1, 0),
+(12, 'Reserv', 0, 1, 0),
+(13, 'Reserv', 0, 1, 0),
+(14, 'Reserv', 0, 1, 0),
+(15, 'Reserv', 0, 1, 0),
+(16, 'Reserv', 0, 1, 0),
+(17, 'Reserv', 0, 1, 0),
+(18, 'Reserv', 0, 1, 0),
+(19, 'Reserv', 0, 1, 0),
+(20, 'Reserv', 0, 1, 0),
+(21, 'Reserv', 0, 1, 0),
+(22, 'Reserv', 0, 1, 0),
+(23, 'Reserv', 0, 1, 0),
+(24, 'Reserv', 0, 1, 0),
+(25, 'Reserv', 0, 1, 0),
+(26, 'Reserv', 0, 1, 0),
+(27, 'Reserv', 0, 1, 0),
+(28, 'Reserv', 0, 1, 0),
+(29, 'Reserv', 0, 1, 0),
+(30, 'Reserv', 0, 1, 0),
+(31, 'Reserv', 0, 1, 0),
+(32, 'Reserv', 0, 1, 0),
+(33, 'Reserv', 0, 1, 0),
+(34, 'Reserv', 0, 1, 0),
+(35, 'Reserv', 0, 1, 0),
+(36, 'Reserv', 0, 1, 0),
+(37, 'Reserv', 0, 1, 0),
+(38, 'Reserv', 0, 1, 0),
+(39, 'Reserv', 0, 1, 0),
+(40, 'Reserv', 0, 1, 0),
+(41, 'Reserv', 0, 1, 0),
+(42, 'Reserv', 0, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -42,6 +105,7 @@ CREATE TABLE IF NOT EXISTS `players` (
   `lvl` int(11) NOT NULL DEFAULT '1',
   `money` float NOT NULL,
   `donate` float NOT NULL,
+  `groupid` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
@@ -49,8 +113,8 @@ CREATE TABLE IF NOT EXISTS `players` (
 -- Дамп данных таблицы `players`
 --
 
-INSERT INTO `players` (`id`, `name`, `pass`, `email`, `banned`, `muted`, `kicks`, `bans`, `mutes`, `warns`, `sex`, `exp`, `lvl`, `money`, `donate`) VALUES
-(1, 'Stanislav_Cherkasov', 'FFA5BCA9496243922131D1C65DA51F0C', 'ch3rkasov@gmail.com', 0, 0, 10, 0, 0, 0, 0, 0, 1, 0, 1488);
+INSERT INTO `players` (`id`, `name`, `pass`, `email`, `banned`, `muted`, `kicks`, `bans`, `mutes`, `warns`, `sex`, `exp`, `lvl`, `money`, `donate`, `groupid`) VALUES
+(1, 'Stanislav_Cherkasov', 'FFA5BCA9496243922131D1C65DA51F0C', 'ch3rkasov@gmail.com', 0, 0, 10, 0, 0, 0, 0, 0, 1, 0, 1488, 1);
 
 -- --------------------------------------------------------
 
@@ -63,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `rights` (
   `ownerid` int(11) NOT NULL,
   `rightid` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=15 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
 
 --
 -- Дамп данных таблицы `rights`
@@ -80,7 +144,8 @@ INSERT INTO `rights` (`id`, `ownerid`, `rightid`) VALUES
 (11, 1, 6),
 (12, 1, 7),
 (13, 1, 8),
-(14, 1, 9);
+(14, 1, 9),
+(16, 1, 10);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
