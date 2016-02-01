@@ -42,6 +42,7 @@ enum rInfo
 #define SETGROUP            10
 #define CREATEGROUP         11
 #define LEAVEGROUP			12
+#define CLOSESERVER			13
 
 #define RESTART 26
 
@@ -60,7 +61,7 @@ new rightInfo[MAX_RIGHTS][rInfo] =
 	{"Управлять группами", "/setgroupleader, /renamegroup, /deletegroup"},//10
 	{"Создавать группы", "/creategroup"},
 	{"Покидать группы", "/leavegroup"},
-	{"Неустановленное право", "Недоступно"},
+	{"Закрыть сервер", "/closeserver"},
 	{"Неустановленное право", "Недоступно"},
 	{"Неустановленное право", "Недоступно"},//15
 	{"Неустановленное право", "Недоступно"},
@@ -384,11 +385,11 @@ CMD:setright(playerid,params[])
 {
 	if(!IsPlayerHasRight(playerid, SETRIGHT)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 	new targetid, rightid;
-	if(sscanf(params,"ii",targetid, rightid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте {"#COLOR_NOTE"}(/setright [playerid] [rightid])!");
-	if(!GetPVarInt(targetid,"logged")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Игрока с данным id нет на сервере или он не авторизован.");
+	if(sscanf(params,"ii",targetid, rightid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}(/setright [playerid] [rightid])!");
+	if(!GetPVarInt(targetid,"logged")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Игрока с данным id нет на сервере или он не авторизован.");
 	SetPlayerRight(targetid, rightid);
-	SendClientMessageEx(playerid,CLR_SUCCESS,"«v»: Право установлено! {"#COLOR_NOTE"}(/rights [playerid])");
-	SendClientMessageEx(targetid,CLR_NOTE,"«i»: Администратор внес изменения в ваши права! {"#COLOR_NOTE"}(/rights)");
+	SendClientMessageEx(playerid,CLR_SUCCESS,"«v»: {"#cOLOR_WHITE"}Право установлено! {"#COLOR_NOTE"}(/rights [playerid])");
+	SendClientMessageEx(targetid,CLR_NOTE,"«i»: {"#cOLOR_WHITE"}Администратор внес изменения в ваши права! {"#COLOR_NOTE"}(/rights)");
 	return 1;
 }
 
@@ -403,7 +404,7 @@ stock ShowPlayerRights(playerid, showid)
 	    {
 	        format(strTextPlayerDialog, sizeof(strTextPlayerDialog), "{"#COLOR_DIALOG_BODY"}%s%i. %s [%i]\n",strTextPlayerDialog, i + 1, rightInfo[ cache_get_field_content_int(i, "rightid", MySQL)][rightName], cache_get_field_content_int(i, "rightid", MySQL));
 	    }
-	    Dialog_Show(playerid, rightslist,DIALOG_STYLE_LIST, "{"#COLOR_DIALOG_HEAD"}Доступные права",strTextPlayerDialog,"Инф.","Закрыть");
+	    Dialog_Show(playerid, MsgBox,DIALOG_STYLE_MSGBOX, "{"#COLOR_DIALOG_HEAD"}Доступные права",strTextPlayerDialog,"Инф.","Закрыть");
 	}
 	else
 	{
@@ -422,7 +423,7 @@ CMD:rights(playerid,params[])
 	else
 	{
 	    if(!IsPlayerHasRight(playerid, SETRIGHT)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
-	    if(!GetPVarInt(showid,"logged")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Игрока с данным id нет на сервере или он не авторизован.");
+	    if(!GetPVarInt(showid,"logged")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Игрока с данным id нет на сервере или он не авторизован.");
 	    ShowPlayerRights(playerid, showid);
 	}
 	return 1;
@@ -512,6 +513,47 @@ CMD:setlvl(playerid,params[])
 	return 1;
 }
 
+
+CMD:setplayername(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, 999)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:teleport(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, 999)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+
+	return 1;
+}
+
+CMD:closeserver(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, CLOSESERVER)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+    new reason[128], password[32];
+    if(sscanf(params,"s[32]s[128]", password, reason)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте {"#COLOR_NOTE"}(/closeserver [password] [reason])");
+    format(strIOText, sizeof(strIOText), "«x»: {"#cOLOR_WHITE"}Сервер закрыт. Причина: {"#COLOR_NOTE"}%s", reason);
+    for(new i = 0; i < MAX_PLAYERS; i++)
+    {
+        SendClientMessageEx(i,CLR_ERROR, strIOText);
+        if(i == playerid) continue;
+        Kick(i);
+    }
+    format(strIOText, sizeof(strIOText), "«i»: {"#cOLOR_WHITE"}Пароль от сервера: {"#COLOR_NOTE"}%s", password);
+    SendClientMessageEx(playerid,CLR_NOTE, strIOText);
+    format(strIOText, sizeof(strIOText), "password %s", password);
+    SendRconCommand(strIOText);
+	return 1;
+}
+
+CMD:openserver(playerid,params[])
+{
+    if(!IsPlayerHasRight(playerid, CLOSESERVER)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+    SendClientMessageEx(playerid,CLR_SUCCESS, "«v»: {"#cOLOR_WHITE"}Сервер открыт");
+    SendRconCommand("password 0");
+	return 1;
+}
 
 //------------------------------------
 
