@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: 127.0.0.1
--- Время создания: Фев 01 2016 г., 02:08
+-- Время создания: Фев 01 2016 г., 15:44
 -- Версия сервера: 5.5.25
 -- Версия PHP: 5.3.13
 
@@ -107,14 +107,37 @@ CREATE TABLE IF NOT EXISTS `players` (
   `donate` float NOT NULL,
   `groupid` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=25 ;
 
 --
 -- Дамп данных таблицы `players`
 --
 
 INSERT INTO `players` (`id`, `name`, `pass`, `email`, `banned`, `muted`, `kicks`, `bans`, `mutes`, `warns`, `sex`, `exp`, `lvl`, `money`, `donate`, `groupid`) VALUES
-(1, 'Stanislav_Cherkasov', 'FFA5BCA9496243922131D1C65DA51F0C', 'ch3rkasov@gmail.com', 0, 0, 10, 0, 0, 0, 0, 0, 1, 0, 1488, 1);
+(1, 'Stanislav_Cherkasov', 'FFA5BCA9496243922131D1C65DA51F0C', 'ch3rkasov@gmail.com', 0, 0, 10, 0, 0, 0, 0, 0, 1, 0, 1488, 1),
+(2, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(3, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(4, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(5, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(6, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(7, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(8, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(9, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(10, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(11, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(12, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(13, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(14, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(15, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(16, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(17, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(18, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(19, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(20, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(21, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(22, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(23, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+(24, 'Test_Test', 'FFA5BCA9496243922131D1C65DA51F0C', 'test@test.test', 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1);
 
 -- --------------------------------------------------------
 

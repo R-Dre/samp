@@ -41,6 +41,7 @@ enum rInfo
 #define DELETEPLAYER        9
 #define SETGROUP            10
 #define CREATEGROUP         11
+#define LEAVEGROUP			12
 
 #define RESTART 26
 
@@ -58,7 +59,7 @@ new rightInfo[MAX_RIGHTS][rInfo] =
 	{"Удалять аккаунты", "/deleteplayer"},
 	{"Управлять группами", "/setgroupleader, /renamegroup, /deletegroup"},//10
 	{"Создавать группы", "/creategroup"},
-	{"Неустановленное право", "Недоступно"},
+	{"Покидать группы", "/leavegroup"},
 	{"Неустановленное право", "Недоступно"},
 	{"Неустановленное право", "Недоступно"},
 	{"Неустановленное право", "Недоступно"},//15
@@ -381,7 +382,7 @@ stock SetPlayerRight(playerid, rightid)
 
 CMD:setright(playerid,params[])
 {
-	if(!IsPlayerHasRight(playerid, SETRIGHT)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+	if(!IsPlayerHasRight(playerid, SETRIGHT)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 	new targetid, rightid;
 	if(sscanf(params,"ii",targetid, rightid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте {"#COLOR_NOTE"}(/setright [playerid] [rightid])!");
 	if(!GetPVarInt(targetid,"logged")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Игрока с данным id нет на сервере или он не авторизован.");
@@ -420,7 +421,7 @@ CMD:rights(playerid,params[])
 	}
 	else
 	{
-	    if(!IsPlayerHasRight(playerid, SETRIGHT)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+	    if(!IsPlayerHasRight(playerid, SETRIGHT)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 	    if(!GetPVarInt(showid,"logged")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Игрока с данным id нет на сервере или он не авторизован.");
 	    ShowPlayerRights(playerid, showid);
 	}
@@ -431,7 +432,7 @@ CMD:rights(playerid,params[])
 
 CMD:restart(playerid)
 {
-    if(!IsPlayerHasRight(playerid, RESTART)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, RESTART)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 	for(new i = 0; i < MAX_PLAYERS; i++)
 	{
 	    if(!GetPVarInt(i, "logged")) continue;
@@ -443,99 +444,76 @@ CMD:restart(playerid)
 
 CMD:banplayer(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, BAN)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, BAN)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 CMD:kick(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, KICK)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, KICK)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 CMD:warn(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, WARN)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, WARN)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 CMD:mute(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, MUTE)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, MUTE)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 CMD:ban(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, BAN)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, BAN)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 CMD:spec(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, SPEC)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, SPEC)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 CMD:deleteplayer(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, DELETEPLAYER)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, DELETEPLAYER)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 CMD:givemoney(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, GIVEMONEY)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, GIVEMONEY)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 CMD:takemoney(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, TAKEMONEY)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, TAKEMONEY)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 CMD:setlvl(playerid,params[])
 {
-    if(!IsPlayerHasRight(playerid, SETLVL)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
+    if(!IsPlayerHasRight(playerid, SETLVL)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
 
 	return 1;
 }
 
 
 //------------------------------------
-
-stock GetPlayerGroup(playerid)
-{
-    format(strSQLQuery, sizeof(strSQLQuery),"SELECT `groupid` FROM `playerid` WHERE `id` = '%d' LIMIT 1", GetPVarInt(playerid, "id"));
-	mysql_query(MySQL, strSQLQuery);
-	return cache_get_field_content_int(0, "groupid", MySQL);
-}
-
-stock SetPlayerGroup(id, groupid)//"-1" - без фракции
-{
-    format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `players` SET `groupid` = '%d' WHERE `id` = '%d'", groupid, id);
-	mysql_query(MySQL, strSQLQuery);
-	return 1;
-}
-
-CMD:setgroup(playerid, params[])
-{
-    if(!IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
-    new targetid, groupid;
-    if(sscanf(params,"ii",targetid, groupid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте (/setgroup [playerid] [groupid])");
-	SetPVarInt(targetid, "groupid", groupid);
-    return 1;
-}
 
 stock CreateGroup(groupname[], leaderid)
 {
@@ -544,22 +522,18 @@ stock CreateGroup(groupname[], leaderid)
 	return 1;
 }
 
-CMD:creategroup(playerid, params[])
+stock GetGroupLeaderID(groupid)
 {
-    if(!IsPlayerHasRight(playerid, CREATEGROUP) && !IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
-    new name[32];
-    if(sscanf(params,"s[32]", name)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте (/creategroup [name])");
-	if(GetPVarInt(playerid, "groupid") != 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вы уже состоите в группе!");
-	CreateGroup(name, GetPVarInt(playerid, "id"));
-	
-	format(strSQLQuery, sizeof(strSQLQuery),"SELECT `id` FROM `groups` WHERE `leaderid` = '%d'", GetPVarInt(playerid, "id"));
+    format(strSQLQuery, sizeof(strSQLQuery),"SELECT `leaderid` FROM `groups` WHERE `id` = '%d' LIMIT 1", groupid);
 	mysql_query(MySQL, strSQLQuery);
-	SetPVarInt(playerid, "groupid", cache_get_field_content_int(0, "id", MySQL));
-	
-	format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `players` SET `groupid` = '%d' WHERE `id` = '%d'", GetPVarInt(playerid, "groupid"), GetPVarInt(playerid, "id"));
+	return cache_get_field_content_int(0, "leaderid", MySQL);
+}
+
+stock GetGroupNameByID(groupid, name[32])
+{
+    format(strSQLQuery, sizeof(strSQLQuery), "SELECT `name` FROM `groups` WHERE `id` = '%d'", groupid);
 	mysql_query(MySQL, strSQLQuery);
-	SendClientMessageEx(playerid,CLR_SUCCESS,"«v»: Группа успешно создана! (/groupinfo)");
-    return 1;
+	cache_get_field_content(0, "name", name);
 }
 
 stock IsGroupExist(groupid)
@@ -572,7 +546,7 @@ stock IsGroupExist(groupid)
 
 stock ShowGroupInfo(playerid, groupid)
 {
-	
+
     format(strSQLQuery, sizeof(strSQLQuery),"SELECT * FROM `groups` WHERE `id` = '%d' LIMIT 1", groupid);
 	mysql_query(MySQL, strSQLQuery);
 	if(cache_num_rows() == 1)
@@ -590,7 +564,7 @@ stock ShowGroupInfo(playerid, groupid)
 		{
 		    format(leadername, sizeof(leadername),"отсутствует");
 		}
-		format(strSQLQuery, sizeof(strSQLQuery),"SELECT * FROM `players` WHERE `groupid` = '%d' LIMIT 1", groupid);
+		format(strSQLQuery, sizeof(strSQLQuery),"SELECT * FROM `players` WHERE `groupid` = '%d'", groupid);
 		mysql_query(MySQL, strSQLQuery);
 
 		membersall = cache_num_rows();
@@ -603,7 +577,7 @@ stock ShowGroupInfo(playerid, groupid)
 	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nОчки опыта:\t\t\t\t{"#COLOR_NOTE"}%i из %i",strTextPlayerDialog, groupexp, grouplvl*membersall*10);
 	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nРегистрационный номер:\t\t{"#COLOR_NOTE"}%i",strTextPlayerDialog, groupid);
         format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\n\nЛидер:\t\t\t\t\t{"#COLOR_NOTE"}%s",strTextPlayerDialog, leadername);
-		format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nЧлены:\t\t\t\t{"#COLOR_NOTE"}%d из %d онлайн",strTextPlayerDialog, membersonline, membersall);
+		format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s{"#COLOR_DIALOG_BODY"}\nУчастники:\t\t\t\t{"#COLOR_NOTE"}%d из %d онлайн",strTextPlayerDialog, membersonline, membersall);
 	    Dialog_Show(playerid, MsgBox,DIALOG_STYLE_MSGBOX, "{"#COLOR_DIALOG_HEAD"}Статистика группы",strTextPlayerDialog,"Закрыть","");
     }
     else
@@ -613,26 +587,41 @@ stock ShowGroupInfo(playerid, groupid)
 	return 1;
 }
 
-CMD:groupinfo(playerid, params[])
+stock ShowGroupList(playerid, groupid)
 {
-    new groupid;
-    if(sscanf(params,"i",groupid))
-    {
-        if(GetPVarInt(playerid, "groupid") != 0)
-        {
-            ShowGroupInfo(playerid, GetPVarInt(playerid, "groupid"));
-        }
-        else
-		{
-		    SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вы не состоите в группе!");
-		}
-	}
-	else
+    format(strSQLQuery, sizeof(strSQLQuery),"SELECT * FROM `players` WHERE `groupid` = '%d' LIMIT 80", groupid);
+	mysql_query(MySQL, strSQLQuery);
+	new membername[MAX_PLAYER_NAME], memberid;
+	format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"{"#COLOR_DIALOG_BODY"}\nУчастники:\n");
+	for(new i = 0; i < cache_num_rows(); i++)
 	{
-	    if(!IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вам не доступна эта функция!");
-	    ShowGroupInfo(playerid, groupid);
+	    cache_get_field_content(i, "name", membername);
+	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s%s",strTextPlayerDialog, membername);
+        if(i < cache_num_rows() - 1)
+    	{
+    		format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s, ",strTextPlayerDialog);
+    	}
+    	if((i+1) % 10 == 0)
+    	{
+    	    format(strTextPlayerDialog, sizeof(strTextPlayerDialog),"%s\n",strTextPlayerDialog);
+    	}
 	}
+	Dialog_Show(playerid, MsgBox,DIALOG_STYLE_MSGBOX, "{"#COLOR_DIALOG_HEAD"}Участники группы",strTextPlayerDialog,"Закрыть","");
 	return 1;
+}
+
+stock SetPlayerGroup(id, groupid)//"-1" - без фракции
+{
+    format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `players` SET `groupid` = '%d' WHERE `id` = '%d'", groupid, id);
+	mysql_query(MySQL, strSQLQuery);
+	return 1;
+}
+
+stock GetPlayerGroup(playerid)
+{
+    format(strSQLQuery, sizeof(strSQLQuery),"SELECT `groupid` FROM `playerid` WHERE `id` = '%d' LIMIT 1", GetPVarInt(playerid, "id"));
+	mysql_query(MySQL, strSQLQuery);
+	return cache_get_field_content_int(0, "groupid", MySQL);
 }
 
 stock SetGroupLeader(groupid, leaderid)//"-1" - без лидера
@@ -660,6 +649,183 @@ stock DeleteGroup(groupid)
 	}
 	format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `players` SET `groupid` = '0' WHERE `groupid` = '%d'", groupid);
 	mysql_query(MySQL, strSQLQuery);
+	return 1;
+}
+
+stock SendGroupMessage(groupid, color, text[])
+{
+	for(new i = 0; i < MAX_PLAYERS; i++)
+	{
+	    if(GetPVarInt(i, "groupid") != groupid) continue;
+	    SendClientMessageEx(i, color,text);
+	}
+	return 1;
+}
+
+CMD:creategroup(playerid, params[])
+{
+    if(!IsPlayerHasRight(playerid, CREATEGROUP) && !IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+    new name[32];
+    if(sscanf(params,"s[32]", name)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте {"#COLOR_NOTE"}(/creategroup [name])");
+	if(GetPVarInt(playerid, "groupid") != 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вы уже состоите в группе!");
+	CreateGroup(name, GetPVarInt(playerid, "id"));
+
+	format(strSQLQuery, sizeof(strSQLQuery),"SELECT `id` FROM `groups` WHERE `leaderid` = '%d'", GetPVarInt(playerid, "id"));
+	mysql_query(MySQL, strSQLQuery);
+	SetPVarInt(playerid, "groupid", cache_get_field_content_int(0, "id", MySQL));
+
+	format(strSQLQuery, sizeof(strSQLQuery),"UPDATE `players` SET `groupid` = '%d' WHERE `id` = '%d'", GetPVarInt(playerid, "groupid"), GetPVarInt(playerid, "id"));
+	mysql_query(MySQL, strSQLQuery);
+	SendClientMessageEx(playerid,CLR_SUCCESS,"«v»: Группа успешно создана! (/groupinfo)");
+    return 1;
+}
+
+CMD:setgroup(playerid, params[])
+{
+    if(!IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+    new targetid, groupid;
+    if(sscanf(params,"ii",targetid, groupid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: Используйте {"#COLOR_NOTE"}(/setgroup [playerid] [groupid])");
+	SetPVarInt(targetid, "groupid", groupid);
+    return 1;
+}
+
+CMD:groupinfo(playerid, params[])
+{
+    new groupid;
+    if(sscanf(params,"i",groupid))
+    {
+        if(GetPVarInt(playerid, "groupid") != 0)
+        {
+            ShowGroupInfo(playerid, GetPVarInt(playerid, "groupid"));
+        }
+        else
+		{
+		    SendClientMessageEx(playerid,CLR_ERROR,"«x»: Вы не состоите в группе!");
+		}
+	}
+	else
+	{
+	    if(!IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+	    ShowGroupInfo(playerid, groupid);
+	}
+	return 1;
+}
+
+CMD:grouplist(playerid, params[])
+{
+	new groupid;
+    if(sscanf(params,"i",groupid))
+    {
+        if(GetPVarInt(playerid, "groupid") == 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вы не состоите в группе!");
+        ShowGroupList(playerid, GetPVarInt(playerid, "groupid"));
+	}
+	else
+	{
+	    if(GetPVarInt(playerid, "groupid") != groupid) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+	    ShowGroupList(playerid, groupid);
+	}
+	return 1;
+}
+
+CMD:setleader(playerid, params[])
+{
+	new groupid, leaderid, leadername[MAX_PLAYER_NAME];
+    if(sscanf(params,"ii",groupid, leaderid))
+    {
+        //Если не все аргументы введены
+        if(sscanf(params,"i",leaderid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}(/setleader [playerid])");
+		if(GetGroupLeaderID(GetPVarInt(playerid, "groupid")) != GetPVarInt(playerid, "id")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+		if(GetPVarInt(playerid, "groupid") != GetPVarInt(leaderid, "groupid")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Этот человек не состоит в группе! Используйте {"#COLOR_NOTE"}(/invite [playerid])");
+  		SetGroupLeader(GetPVarInt(playerid, "groupid"), leaderid);
+	}
+	else
+	{
+	    if(!IsPlayerHasRight(playerid, LEAVEGROUP) && !IsPlayerHasRight(playerid, SETGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+        if(groupid != GetPVarInt(leaderid, "groupid")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Этот человек не состоит в группе! Используйте {"#COLOR_NOTE"}(/setgroup [playerid] [groupid])");
+		SetGroupLeader(GetPVarInt(playerid, "groupid"), leaderid);
+	}
+	GetPVarString(playerid, "name", leadername, sizeof(leadername));
+	format(strIOText, sizeof(strIOText),"«i»: {"#cOLOR_WHITE"}%s новый лидер группы!", leadername);
+	SendGroupMessage(GetPVarInt(playerid, "groupid"), CLR_NOTE, strIOText);
+	return 1;
+}
+
+CMD:invite(playerid, params[])
+{
+    if((GetGroupLeaderID(GetPVarInt(playerid, "groupid")) != GetPVarInt(playerid, "id")) || GetPVarInt(playerid, "groupid") == 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+    new targetid;
+	if(sscanf(params,"i",targetid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}(/invite [playerid])");
+	if(GetPVarInt(targetid, "invitegroup") != 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Этот человек рассматривает приглашение в одну из групп! Повторите позднее");
+	if(GetPVarInt(targetid, "groupid") != 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Этот человек состоит в другой группе!");
+	SetPVarInt(targetid, "invitegroup", GetPVarInt(playerid, "groupid"));
+	new playername[MAX_PLAYER_NAME], targetname[MAX_PLAYER_NAME];
+ 	GetPVarString(playerid, "name", playername, sizeof(playername));
+ 	GetPVarString(targetid, "name", targetname, sizeof(targetname));
+	format(strIOText, sizeof(strIOText),"«i»: {"#cOLOR_WHITE"}%s выслал %s приглашение в группу", playername, targetname);
+	SendGroupMessage(GetPVarInt(playerid, "groupid"), CLR_NOTE, strIOText);
+
+	new groupname[32];
+	GetGroupNameByID(GetPVarInt(playerid, "groupid"), groupname);
+	format(strIOText, sizeof(strIOText),"«i»: {"#cOLOR_WHITE"}%s пригласил вас в группу %s. Используйте {"#COLOR_NOTE"}(Принять - /accept){"#cOLOR_WHITE"} или {"#COLOR_NOTE"}(Отклонить - /deny)", playername, groupname);
+	SendClientMessageEx(targetid, CLR_NOTE, strIOText);
+	return 1;
+}
+
+CMD:uninvite(playerid, params[])
+{
+    if((GetGroupLeaderID(GetPVarInt(playerid, "groupid")) != GetPVarInt(playerid, "id")) || GetPVarInt(playerid, "groupid") == 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+    new targetid;
+	if(sscanf(params,"i",targetid)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Используйте {"#COLOR_NOTE"}(/uninvite [playerid])");
+	if(GetPVarInt(playerid, "groupid") != GetPVarInt(targetid, "groupid")) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Этот человек не состоит в группе!");
+
+	new playername[MAX_PLAYER_NAME], targetname[MAX_PLAYER_NAME];
+ 	GetPVarString(playerid, "name", playername, sizeof(playername));
+    GetPVarString(targetid, "name", targetname, sizeof(targetname));
+	format(strIOText, sizeof(strIOText),"«i»: {"#cOLOR_WHITE"}%s удалил из группы %s", playername, targetname);
+	SendGroupMessage(GetPVarInt(playerid, "groupid"), CLR_NOTE, strIOText);
+	SetPVarInt(targetid, "groupid", 0);
+	return 1;
+}
+
+CMD:accept(playerid)
+{
+	if(GetPVarInt(playerid, "invitegroup") == 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}У вас нет приглашения в группу или оно устарело!");
+    SetPVarInt(playerid, "groupid", GetPVarInt(playerid, "invitegroup"));
+	SetPVarInt(playerid, "invitegroup", 0);
+	new playername[MAX_PLAYER_NAME];
+ 	GetPVarString(playerid, "name", playername, sizeof(playername));
+	format(strIOText, sizeof(strIOText),"«i»: {"#cOLOR_WHITE"}%s принял приглашение в группу", playername);
+	SendGroupMessage(GetPVarInt(playerid, "groupid"), CLR_NOTE, strIOText);
+	return 1;
+}
+
+CMD:deny(playerid)
+{
+    if(GetPVarInt(playerid, "invitegroup") == 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}У вас нет приглашения в группу или оно устарело!");
+	new playername[MAX_PLAYER_NAME];
+ 	GetPVarString(playerid, "name", playername, sizeof(playername));
+	format(strIOText, sizeof(strIOText),"«i»: {"#cOLOR_WHITE"}%s отклонил приглашение в группу", playername);
+	SendGroupMessage(GetPVarInt(playerid, "invitegroup"), CLR_NOTE, strIOText);
+	SetPVarInt(playerid, "invitegroup", 0);
+	return 1;
+}
+
+CMD:leavegroup(playerid)
+{
+    if(GetPVarInt(playerid, "groupid") == 0) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вы не состоите в группе!");
+    if(GetGroupLeaderID(GetPVarInt(playerid, "groupid")) == GetPVarInt(playerid, "id"))
+    {
+        SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Сначала назначьте другого лидера!");
+    }
+    else
+    {
+        if(!IsPlayerHasRight(playerid, LEAVEGROUP)) return SendClientMessageEx(playerid,CLR_ERROR,"«x»: {"#cOLOR_WHITE"}Вам не доступна эта функция!");
+	    new playername[MAX_PLAYER_NAME];
+	    GetPVarString(playerid, "name", playername, sizeof(playername));
+	    format(strIOText, sizeof(strIOText),"«i»: {"#cOLOR_WHITE"}%s покинул группу", playername);
+		SendGroupMessage(GetPVarInt(playerid, "groupid"), CLR_NOTE, strIOText);
+		SetPVarInt(playerid, "groupid", 0);
+	}
 	return 1;
 }
 
@@ -937,6 +1103,7 @@ public OnPlayerDisconnect(playerid, reason)
 	if(GetPVarInt(playerid, "logged") == 1)
 	{
 	    DeletePVar(playerid, "logged");
+	    DeletePVar(playerid, "invitegroup");
 	    LoadFromPVarInToPlayerTable(playerid);
 	}
 #if    defined    OnPlayerDisconnect_players
