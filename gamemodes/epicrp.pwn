@@ -83,6 +83,7 @@ new strSQLQuery[1024];//Для запросов к базе данных
 #include <epicrp/animations.inc>
 #include <epicrp/vehicles.inc>
 #include <epicrp/interiors.inc>
+#include <epicrp/props.inc>
 #include <epicrp/inventory.inc>
 
 AntiDeAMX()
