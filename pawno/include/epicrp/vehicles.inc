@@ -328,6 +328,8 @@ public OnGameModeInit()
     
     ManualVehicleEngineAndLights();
     EnableStuntBonusForAll(0);
+    format(strIOText,sizeof(strIOText), "Vehicles %d has been loaded", 2);
+	print(strIOText);
 #if    defined    OnGameModeInit_vehicles
     OnGameModeInit_vehicles();
 #endif

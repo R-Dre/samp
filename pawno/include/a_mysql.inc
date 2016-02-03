@@ -243,3 +243,5 @@ forward OnQueryError(errorid, error[], callback[], query[], connectionHandle);
 		return 1;
 	}
 #endif
+
+

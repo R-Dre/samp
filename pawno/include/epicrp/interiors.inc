@@ -1,13 +1,13 @@
 #define MAX_INTERIORS		145
 
 enum Interior {
-	name[30],
-	interior,
-	Float:x,
-	Float:y,
-	Float:z,
-	class,
-	rooms
+	interior_name[30],
+	interior_interior,
+	Float: interior_x,
+	Float: interior_y,
+	Float: interior_z,
+	interior_class,
+	interior_rooms
 };
 
 new Interiors[MAX_INTERIORS][Interior] = {

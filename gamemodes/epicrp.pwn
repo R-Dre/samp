@@ -84,6 +84,9 @@ new strSQLQuery[1024];//Для запросов к базе данных
 #include <epicrp/vehicles.inc>
 #include <epicrp/interiors.inc>
 #include <epicrp/props.inc>
+
+
+
 #include <epicrp/inventory.inc>
 
 AntiDeAMX()
@@ -112,12 +115,6 @@ public OnGameModeInit()
 	
 	mysql_log(LOG_ERROR | LOG_WARNING, LOG_TYPE_HTML);
 	MySQL = mysql_connect(SQL_HOST, SQL_USER,SQL_DB, SQL_PASS);
-    mysql_query(MySQL, "SET CHARSET cp1251");
-	mysql_query(MySQL, "SET COLLATION_CONNECTION=cp1251");
-	mysql_query(MySQL, "SET CHARACTER_SET_CLIENT=cp1251");
-	mysql_query(MySQL, "SET CHARACTER_SET_RESULTS=cp1251");
-	mysql_query(MySQL, "SET NAMES cp1251;");
-    mysql_query(MySQL, "SET SESSION character_set_server=cp1251;");
 	return 1;
 }
 
