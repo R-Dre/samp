@@ -304,6 +304,28 @@ public OnGameModeInit()
     CreateVehicle(596, 1535.3322,-1678.1329,13.0417,327.8306, 0, 1, 300);
     CreateVehicle(596, 1535.3153,-1667.2216,13.0422,330.5543, 0, 1, 300);
     
+    new g_Object[5];
+	new g_Vehicle[1];
+	g_Object[0] = CreateObject(1001, 1713.2460, -1944.0019, 14.0696, -1.2999, -0.1000, 93.4999); //spl_b_bab_m
+	g_Object[1] = CreateObject(1140, 1689.4443, -1834.2148, 13.4954, 0.0000, 0.0000, 5.2000); //rbmp_c_s
+	SetObjectMaterial(g_Object[1], 0, 14668, "711c", "forumstand1_LAe", 0xFF86446E);
+	SetObjectMaterial(g_Object[1], 1, 10101, "2notherbuildsfe", "ferry_build14", 0xFF86446E);
+	g_Object[2] = CreateObject(19086, 1685.9615, -1829.3847, 11.3674, 0.0000, 0.0000, 0.0000); //ChainsawDildo1
+	g_Object[3] = CreateObject(1153, 1690.2669, -1830.4359, 11.8309, 0.0000, 0.0000, 0.0000); //fbmp_a_f
+	SetObjectMaterial(g_Object[3], 0, 10101, "2notherbuildsfe", "ferry_build14", 0xFF86446E);
+	g_Object[4] = CreateObject(1425, 1709.1494, -1880.4896, 12.3510, 0.0000, 0.0000, 0.0000); //DYN_ROADBARRIER_3
+	SetObjectMaterial(g_Object[4], 0, 10101, "2notherbuildsfe", "Bow_Abpave_Gen", 0xFF86446E);
+	SetObjectMaterial(g_Object[4], 1, 10101, "2notherbuildsfe", "Bow_Abpave_Gen", 0xFF86446E);
+	SetObjectMaterial(g_Object[4], 2, 10101, "2notherbuildsfe", "Bow_church_grass_alt", 0xFF86446E);
+	SetObjectMaterial(g_Object[4], 3, 10101, "2notherbuildsfe", "gz_vicdoor1", 0xFF86446E);
+	AddVehicleComponent(g_Vehicle[0], 1087);
+	g_Vehicle[0] = CreateVehicle(478, 1720.7080, -1861.3923, 13.5633, 359.4626, 146, 27, -1); //Walton
+	AttachObjectToVehicle(g_Object[0], g_Vehicle[0], 0.0000, -2.5999, 0.5000, 0.0000, 0.0000, 0.0000);
+	AttachObjectToVehicle(g_Object[1], g_Vehicle[0], -1.1000, -2.0000, -0.2000, 0.0000, 0.0000, 0.0000);
+	AttachObjectToVehicle(g_Object[2], g_Vehicle[0], 0.0000, 2.0999, 0.5000, 0.0000, 0.0000, 90.0000);
+	AttachObjectToVehicle(g_Object[3], g_Vehicle[0], 0.9499, 1.7999, -0.3000, 0.0000, 0.0000, 0.0000);
+	AttachObjectToVehicle(g_Object[4], g_Vehicle[0], 0.0000, 2.5999, -0.5000, -90.0000, 180.0000, 180.0000);
+    
     ManualVehicleEngineAndLights();
     EnableStuntBonusForAll(0);
 #if    defined    OnGameModeInit_vehicles

@@ -1292,8 +1292,6 @@ stock SendClientMessageEx(playerid, color, text[])
 
 #define SendClientMessage SendClientMessageEx
 
-//------------------------------------
-
 
 //------------------------------------
 
@@ -1309,28 +1307,6 @@ stock ProxDetectorNew(playerid,Float:Radi=10.0,color,text[])
 		}
     }
 }
-
-//------------------------------------
-
-public OnPlayerText(playerid, text[])
-{
-
-#if    defined    OnPlayerstrIOText
-    OnPlayerstrIOText(playerid, text);
-#endif
-	return 0;
-}
-
-#if    defined    _ALS_OnPlayerText
-    #undef    OnPlayerText
-#else
-    #define    _ALS_OnPlayerText
-#endif
-#define    OnPlayerText    OnPlayerstrIOText
-#if    defined    OnPlayerstrIOText
-forward OnPlayerstrIOText(playerid, text[]);
-#endif
-
 
 //------------------------------------
 

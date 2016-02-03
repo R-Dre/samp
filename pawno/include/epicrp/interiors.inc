@@ -1,16 +1,16 @@
 #define MAX_INTERIORS		145
 
-enum iInfo{
-	iName[30],
-	iInterior,
-	Float:iX,
-	Float:iY,
-	Float:iZ,
-	iClass,
-	iRooms
+enum Interior {
+	name[30],
+	interior,
+	Float:x,
+	Float:y,
+	Float:z,
+	class,
+	rooms
 };
 
-new interiorInfo[MAX_INTERIORS][iInfo] = {
+new Interiors[MAX_INTERIORS][Interior] = {
 	{"Spawn",0,-1976.0231,137.8876,27.6875,0,1},
 	{"Дом",3,235.508994,1189.169897,1080.339966,0,1},
 	{"Дом",2,225.756989,1240.000000,1082.149902 ,0,1},

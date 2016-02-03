@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: 127.0.0.1
--- Время создания: Фев 01 2016 г., 15:44
+-- Время создания: Фев 03 2016 г., 03:57
 -- Версия сервера: 5.5.25
 -- Версия PHP: 5.3.13
 
@@ -142,6 +142,41 @@ INSERT INTO `players` (`id`, `name`, `pass`, `email`, `banned`, `muted`, `kicks`
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `props`
+--
+
+CREATE TABLE IF NOT EXISTS `props` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `x` float NOT NULL,
+  `y` float NOT NULL,
+  `z` float NOT NULL,
+  `interiorid` int(11) NOT NULL,
+  `vw` int(11) NOT NULL DEFAULT '0',
+  `interior` int(11) NOT NULL DEFAULT '-1',
+  `ownerid` int(11) NOT NULL,
+  `ownertype` int(11) NOT NULL,
+  `startprice` int(11) NOT NULL,
+  `price` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+
+--
+-- Дамп данных таблицы `props`
+--
+
+INSERT INTO `props` (`id`, `x`, `y`, `z`, `interiorid`, `vw`, `interior`, `ownerid`, `ownertype`, `startprice`, `price`) VALUES
+(1, 1743.72, -1864.46, 13.5738, 1, 0, 0, 0, 2, 0, 0),
+(2, 1833.78, -1842.61, 13.5781, 36, -1, -1, 0, 0, 10000, 10000),
+(3, 1854, -1914.26, 15.2568, 1, -1, -1, 0, 0, 0, 0),
+(4, 1872.18, -1911.79, 15.2568, 2, -1, -1, 0, 0, 10000, 10000),
+(5, 1891.93, -1914.39, 15.2568, 1, -1, -1, 0, 0, 0, 0),
+(6, 1913.46, -1911.9, 15.2568, 2, -1, -1, 0, 0, 10000, 10000),
+(7, 1928.61, -1915.9, 15.2568, 1, -1, -1, 0, 0, 0, 0),
+(8, 1938.53, -1911.34, 15.2568, 2, -1, -1, 0, 0, 10000, 10000);
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `rights`
 --
 
@@ -150,7 +185,7 @@ CREATE TABLE IF NOT EXISTS `rights` (
   `ownerid` int(11) NOT NULL,
   `rightid` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=18 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
 
 --
 -- Дамп данных таблицы `rights`
@@ -159,7 +194,6 @@ CREATE TABLE IF NOT EXISTS `rights` (
 INSERT INTO `rights` (`id`, `ownerid`, `rightid`) VALUES
 (1, 1, 0),
 (5, 1, 26),
-(6, 1, 1),
 (7, 1, 2),
 (8, 1, 3),
 (9, 1, 4),
@@ -168,7 +202,9 @@ INSERT INTO `rights` (`id`, `ownerid`, `rightid`) VALUES
 (12, 1, 7),
 (13, 1, 8),
 (14, 1, 9),
-(16, 1, 10);
+(16, 1, 10),
+(20, 1, 12),
+(21, 1, 13);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
